@@ -1,34 +1,62 @@
 import '../providers/transaction_provider.dart';
+import '../../../data/models/transaction_model.dart';
+import '../../../data/models/product_model.dart';
 
 class TransactionRepository {
   final TransactionProvider _provider;
-
   TransactionRepository(this._provider);
 
-  Future<List<Map<String, dynamic>>> fetchHistory() async => await _provider.getHistory();
+  Future<List<Transaction>> fetchHistory({String? type, int limit = 50}) async {
+    final data = await _provider.getHistory(type: type, limit: limit);
+    return data.map(Transaction.fromJson).toList();
+  }
+
+  Future<List<Warehouse>> fetchWarehouses() async {
+    final data = await _provider.getWarehouses();
+    return data.map(Warehouse.fromJson).toList();
+  }
+
+  Future<List<Product>> fetchProductsWithAvailableBatches() async {
+    final data = await _provider.getProductsWithAvailableBatches();
+    return data.map(Product.fromJson).toList();
+  }
+
+  Future<List<Product>> fetchAllProducts() async {
+    final data = await _provider.getAllProducts();
+    return data.map(Product.fromJson).toList();
+  }
+
+  Future<List<Batch>> fetchAvailableBatches(String productId) async {
+    final data = await _provider.getAvailableBatchesForProduct(productId);
+    return data.map(Batch.fromJson).toList();
+  }
+
+  Future<List<Batch>> fetchAllBatches(String productId) async {
+    final data = await _provider.getBatchesForProduct(productId);
+    return data.map(Batch.fromJson).toList();
+  }
 
   Future<void> submitTransaction({
     required String type,
     required int warehouseId,
-    required String notes,
-    required List<Map<String, dynamic>> items,
+    String? notes,
+    String? referenceNumber,
+    required List<TransactionItemDraft> items,
   }) async {
     final transRes = await _provider.insertTransaction({
       'type': type,
       'user_id': _provider.currentUserId,
       'warehouse_id': warehouseId,
-      'notes': notes
+      'notes': notes,
+      'reference_number': referenceNumber,
     });
 
     final transId = transRes['id'];
-    final itemsToInsert = items.map((item) => {
+    final itemsJson = items.map((item) => {
       'transaction_id': transId,
-      'product_id': item['product_id'],
-      'batch_id': item['batch_id'],
-      'quantity': item['quantity'],
-      'unit_price': item['unit_price']
+      ...item.toApiJson(),
     }).toList();
 
-    await _provider.insertTransactionItems(itemsToInsert);
+    await _provider.insertTransactionItems(itemsJson);
   }
 }

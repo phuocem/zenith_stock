@@ -7,11 +7,12 @@ class DashboardProvider {
     return await _supabase.from('vw_inventory_summary').select();
   }
 
-  Future<List<Map<String, dynamic>>> getTransactions(DateTime fromDate) async {
+  Future<List<Map<String, dynamic>>> getTransactionsLastDays(int days) async {
+    final from = DateTime.now().subtract(Duration(days: days)).toIso8601String();
     return await _supabase
         .from('transactions')
-        .select('*, transaction_items(quantity)')
-        .gte('created_at', fromDate.toIso8601String());
+        .select('id, type, created_at, transaction_items(quantity)')
+        .gte('created_at', from);
   }
 
   Future<List<Map<String, dynamic>>> getTopProducts(int limit) async {

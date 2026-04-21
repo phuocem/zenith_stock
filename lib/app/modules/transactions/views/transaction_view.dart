@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../controllers/transaction_controller.dart';
 import '../../../core/theme.dart';
+import '../../../core/global_styles.dart';
+import '../../../data/models/transaction_model.dart';
+import '../../../routes/app_pages.dart';
 
 class TransactionView extends GetView<TransactionController> {
   const TransactionView({super.key});
@@ -15,53 +18,39 @@ class TransactionView extends GetView<TransactionController> {
         title: const Text("GIAO DỊCH KHO"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.history, color: AppTheme.primaryColor),
+            icon: const Icon(Icons.refresh_rounded, color: AppTheme.accentColor),
             onPressed: controller.fetchHistory,
           ),
         ],
       ),
       body: Column(
         children: [
-          _buildQuickActions(),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Row(
-              children: [
-                Text("Lịch sử gần đây", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              ],
-            ),
-          ),
+          _buildActionButtons(context),
+          _buildFilterTabs(),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value) {
+              if (controller.isLoading.value && controller.history.isEmpty) {
                 return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
               }
               if (controller.history.isEmpty) {
-                return const Center(child: Text("Chưa có giao dịch nào", style: TextStyle(color: Colors.white54)));
+                return const EmptyState(
+                  message: "Chưa có giao dịch nào",
+                  icon: Icons.receipt_long_outlined,
+                );
               }
-              return ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: controller.history.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final trans = controller.history[index];
-                  // Hiệu ứng xuất hiện mượt mà
-                  return TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    duration: Duration(milliseconds: 400 + (index % 10 * 100)),
-                    curve: Curves.easeOutCubic,
-                    builder: (context, value, child) {
-                      return Opacity(
-                        opacity: value,
-                        child: Transform.translate(
-                          offset: Offset(0, 20 * (1 - value)),
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: _buildTransactionCard(trans),
-                  );
-                },
+              return RefreshIndicator(
+                color: AppTheme.primaryColor,
+                backgroundColor: AppTheme.cardColor,
+                onRefresh: controller.fetchHistory,
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: controller.history.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (_, i) => FadeSlideItem(
+                    index: i,
+                    child: _TransactionCard(transaction: controller.history[i]),
+                  ),
+                ),
               );
             }),
           ),
@@ -70,26 +59,34 @@ class TransactionView extends GetView<TransactionController> {
     );
   }
 
-  Widget _buildQuickActions() {
+  Widget _buildActionButtons(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Expanded(
-            child: _buildActionButton(
-              "NHẬP KHO", 
-              Icons.add_shopping_cart_rounded, 
-              Colors.greenAccent, 
-              () => _showTransactionForm("IN")
+            child: _ActionBtn(
+              label: "NHẬP KHO",
+              icon: Icons.south_west_rounded,
+              color: AppTheme.successColor,
+              onTap: () {
+                controller.formType.value = 'IN';
+                controller.draftItems.clear();
+                Get.toNamed(Routes.CREATE_TRANSACTION);
+              },
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
-            child: _buildActionButton(
-              "XUẤT KHO", 
-              Icons.local_shipping_outlined, 
-              Colors.redAccent, 
-              () => _showTransactionForm("OUT")
+            child: _ActionBtn(
+              label: "XUẤT KHO",
+              icon: Icons.north_east_rounded,
+              color: AppTheme.dangerColor,
+              onTap: () {
+                controller.formType.value = 'OUT';
+                controller.draftItems.clear();
+                Get.toNamed(Routes.CREATE_TRANSACTION);
+              },
             ),
           ),
         ],
@@ -97,103 +94,117 @@ class TransactionView extends GetView<TransactionController> {
     );
   }
 
-  Widget _buildActionButton(String title, IconData icon, Color color, VoidCallback onTap) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          decoration: AppTheme.glassDecoration(opacity: 0.04).copyWith(
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: color.withOpacity(0.2)),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              )
-            ],
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 32),
-              const SizedBox(height: 12),
-              Text(
-                title, 
-                style: GoogleFonts.outfit(
-                  color: color, 
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                  fontSize: 13,
+  Widget _buildFilterTabs() {
+    return Obx(() {
+      final types = [null, 'IN', 'OUT'];
+      final labels = ['Tất cả', 'Nhập kho', 'Xuất kho'];
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        child: Row(
+          children: List.generate(types.length, (i) {
+            final sel = controller.filterType.value == types[i];
+            return GestureDetector(
+              onTap: () {
+                controller.filterType.value = types[i];
+                controller.fetchHistory();
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: sel ? AppTheme.primaryColor.withOpacity(0.15) : AppTheme.cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: sel ? AppTheme.primaryColor : Colors.white12),
                 ),
+                child: Text(labels[i], style: TextStyle(
+                  color: sel ? AppTheme.primaryColor : Colors.white54,
+                  fontWeight: sel ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 13,
+                )),
               ),
-            ],
-          ),
+            );
+          }),
         ),
-      ),
-    );
+      );
+    });
   }
+}
 
-  Widget _buildTransactionCard(Map<String, dynamic> trans) {
-    final bool isAddition = trans['type'] == 'IN';
-    final date = DateTime.parse(trans['created_at']);
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppTheme.glassDecoration(opacity: 0.03).copyWith(
-        boxShadow: AppTheme.luxuryShadow,
-      ),
+class _TransactionCard extends StatelessWidget {
+  final Transaction transaction;
+  const _TransactionCard({required this.transaction});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = transaction;
+    Color typeColor = switch (t.type) {
+      'IN'     => AppTheme.successColor,
+      'OUT'    => AppTheme.dangerColor,
+      'ADJUST' => AppTheme.warningColor,
+      _ => Colors.white54,
+    };
+    IconData typeIcon = switch (t.type) {
+      'IN'     => Icons.south_west_rounded,
+      'OUT'    => Icons.north_east_rounded,
+      'ADJUST' => Icons.tune_rounded,
+      _ => Icons.swap_horiz,
+    };
+    String typeLabel = switch (t.type) {
+      'IN'     => "Phiếu Nhập Kho",
+      'OUT'    => "Phiếu Xuất Kho",
+      'ADJUST' => "Điều Chỉnh",
+      _ => t.type,
+    };
+
+    return ZenithCard(
+      padding: const EdgeInsets.all(14),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: (isAddition ? Colors.greenAccent : Colors.redAccent).withOpacity(0.1),
+              color: typeColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
-              isAddition ? Icons.south_west_rounded : Icons.north_east_rounded,
-              color: isAddition ? Colors.greenAccent : Colors.redAccent,
-              size: 20,
-            ),
+            child: Icon(typeIcon, color: typeColor, size: 20),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(typeLabel, style: AppTheme.titleStyle.copyWith(fontSize: 14)),
+                const SizedBox(height: 2),
                 Text(
-                  isAddition ? "Phiếu Nhập Kho" : "Phiếu Xuất Kho",
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: Colors.white,
+                  "Bởi: ${t.userFullName ?? 'N/A'} · ${t.warehouseName ?? ''}",
+                  style: AppTheme.captionStyle.copyWith(fontSize: 11),
+                ),
+                if (t.items.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    t.items.map((i) => i.productName ?? 'SP').take(2).join(', ') +
+                        (t.items.length > 2 ? ' +${t.items.length - 2} khác' : ''),
+                    style: AppTheme.captionStyle.copyWith(fontSize: 11, color: Colors.white38),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  "Bởi: ${trans['profiles']?['full_name'] ?? 'N/A'}",
-                  style: const TextStyle(color: Colors.white38, fontSize: 11),
-                ),
+                ],
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                isAddition ? "+ NHẬP" : "- XUẤT",
-                style: GoogleFonts.outfit(
-                  color: isAddition ? Colors.greenAccent : Colors.redAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  letterSpacing: 0.5,
-                ),
+              ZenithBadge(
+                label: t.type == 'IN' ? "+${t.totalQuantity}" : "-${t.totalQuantity}",
+                color: typeColor,
               ),
+              const SizedBox(height: 6),
               Text(
-                DateFormat('dd/MM HH:mm').format(date),
-                style: const TextStyle(color: Colors.white24, fontSize: 10),
+                DateFormat('dd/MM HH:mm').format(t.createdAt.toLocal()),
+                style: AppTheme.captionStyle.copyWith(fontSize: 10),
               ),
             ],
           ),
@@ -201,9 +212,43 @@ class TransactionView extends GetView<TransactionController> {
       ),
     );
   }
+}
 
-  void _showTransactionForm(String type) {
-    Get.snackbar("Tính năng", "Giao diện chọn sản phẩm và tạo phiếu $type đang được hoàn thiện", 
-        snackPosition: SnackPosition.BOTTOM, colorText: Colors.white);
+class _ActionBtn extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+  const _ActionBtn({required this.label, required this.icon, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: AppTheme.cardDecoration(borderColor: color.withOpacity(0.25)).copyWith(
+            boxShadow: [BoxShadow(color: color.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 8))],
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 26),
+              ),
+              const SizedBox(height: 10),
+              Text(label, style: GoogleFonts.outfit(color: color, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

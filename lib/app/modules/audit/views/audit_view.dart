@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-
 import '../../../core/theme.dart';
+import '../../../core/global_styles.dart';
 import '../controllers/audit_controller.dart';
+import '../../../data/models/audit_model.dart';
+import '../../../routes/app_pages.dart';
 
 class AuditView extends GetView<AuditController> {
   const AuditView({super.key});
@@ -16,57 +17,43 @@ class AuditView extends GetView<AuditController> {
         title: const Text("KIỂM KÊ KHO"),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.playlist_add_check_rounded,
-              color: AppTheme.primaryColor,
-            ),
-            onPressed: () => _showNewAuditDialog(),
+            icon: const Icon(Icons.refresh_rounded, color: AppTheme.accentColor),
+            onPressed: controller.fetchAudits,
+          ),
+          IconButton(
+            icon: const Icon(Icons.playlist_add_check_rounded, color: AppTheme.primaryColor),
+            onPressed: () => Get.toNamed(Routes.CREATE_AUDIT),
           ),
         ],
       ),
       body: Column(
         children: [
-          _buildAuditHeader(),
+          _buildHeader(),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.primaryColor,
-                  ),
-                );
+              if (controller.isLoading.value && controller.audits.isEmpty) {
+                return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
               }
               if (controller.audits.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "Chưa có lịch sử kiểm kê",
-                    style: TextStyle(color: Colors.white54),
-                  ),
+                return const EmptyState(
+                  message: "Chưa có lịch sử kiểm kê\nNhấn + để tạo phiên kiểm kê mới",
+                  icon: Icons.playlist_add_check_outlined,
+                  actionLabel: "Tạo kiểm kê",
                 );
               }
-              return ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: controller.audits.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final audit = controller.audits[index];
-                  return TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    duration: Duration(milliseconds: 400 + (index % 10 * 100)),
-                    curve: Curves.easeOutCubic,
-                    builder: (context, value, child) {
-                      return Opacity(
-                        opacity: value,
-                        child: Transform.translate(
-                          offset: Offset(0, 20 * (1 - value)),
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: _buildAuditCard(audit),
-                  );
-                },
+              return RefreshIndicator(
+                color: AppTheme.primaryColor,
+                backgroundColor: AppTheme.cardColor,
+                onRefresh: controller.fetchAudits,
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: controller.audits.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (_, i) => FadeSlideItem(
+                    index: i,
+                    child: _AuditCard(audit: controller.audits[i]),
+                  ),
+                ),
               );
             }),
           ),
@@ -75,150 +62,145 @@ class AuditView extends GetView<AuditController> {
     );
   }
 
-  Widget _buildAuditHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.all(16),
-      decoration: AppTheme.glassDecoration(opacity: 0.1).copyWith(
-        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.05),
-            blurRadius: 20,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.tips_and_updates_outlined,
-              color: AppTheme.primaryColor,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Text(
-              "Đảm bảo số lượng thực tế khớp với hệ thống thông qua đối soát định kỳ.",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-                height: 1.4,
+  Widget _buildHeader() {
+    return Obx(() {
+      final total      = controller.audits.length;
+      final hasVariance = controller.audits.where((a) => !a.isMatch).length;
+      final matched    = total - hasVariance;
+
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: ZenithCard(
+          padding: const EdgeInsets.all(16),
+          borderColor: AppTheme.primaryColor.withOpacity(0.2),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.analytics_outlined, color: AppTheme.primaryColor, size: 22),
               ),
-            ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Tổng: $total lần kiểm kê", style: AppTheme.titleStyle.copyWith(fontSize: 14)),
+                    const SizedBox(height: 4),
+                    Row(children: [
+                      ZenithBadge(label: "✓ Khớp: $matched", color: AppTheme.successColor),
+                      const SizedBox(width: 8),
+                      ZenithBadge(label: "⚠ Lệch: $hasVariance", color: AppTheme.warningColor),
+                    ]),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
+}
 
-  Widget _buildAuditCard(Map<String, dynamic> audit) {
-    final variance = (audit['variance'] as num? ?? 0).toInt();
-    final date = DateTime.parse(audit['created_at']);
-    final isMatch = variance == 0;
+class _AuditCard extends StatelessWidget {
+  final InventoryAudit audit;
+  const _AuditCard({required this.audit});
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppTheme.glassDecoration(
-        opacity: 0.03,
-      ).copyWith(boxShadow: AppTheme.luxuryShadow),
+  @override
+  Widget build(BuildContext context) {
+    Color varColor = audit.isMatch
+        ? AppTheme.successColor
+        : (audit.hasExcess ? AppTheme.accentColor : AppTheme.dangerColor);
+    String varLabel = audit.isMatch
+        ? "KHỚP"
+        : (audit.hasExcess ? "+${audit.variance}" : "${audit.variance}");
+
+    return ZenithCard(
+      padding: const EdgeInsets.all(14),
+      borderColor: audit.isMatch ? null : varColor.withOpacity(0.2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                audit['products']?['name'] ?? 'Sản phẩm không rõ',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: Colors.white,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      audit.productName ?? 'Sản phẩm không xác định',
+                      style: AppTheme.titleStyle.copyWith(fontSize: 15),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (audit.productSku != null)
+                      Text("SKU: ${audit.productSku}", style: AppTheme.captionStyle.copyWith(fontSize: 10)),
+                  ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: (isMatch ? Colors.greenAccent : Colors.orangeAccent)
-                      .withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: (isMatch ? Colors.greenAccent : Colors.orangeAccent)
-                        .withOpacity(0.2),
-                  ),
-                ),
-                child: Text(
-                  isMatch ? "KHỚP" : "CHÊNH: $variance",
-                  style: TextStyle(
-                    color: isMatch ? Colors.greenAccent : Colors.orangeAccent,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
+              const SizedBox(width: 12),
+              ZenithBadge(label: varLabel, color: varColor),
             ],
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(Icons.person_outline, size: 14, color: Colors.white24),
-              const SizedBox(width: 4),
-              Text(
-                audit['profiles']?['full_name'] ?? 'N/A',
-                style: const TextStyle(color: Colors.white38, fontSize: 11),
-              ),
-              const SizedBox(width: 16),
-              const Icon(
-                Icons.event_available_outlined,
-                size: 14,
-                color: Colors.white24,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                DateFormat('dd/MM/yyyy').format(date),
-                style: const TextStyle(color: Colors.white38, fontSize: 11),
-              ),
+              _InfoChip(Icons.archive_outlined, "Hệ thống: ${audit.systemQty}", Colors.white38),
+              const SizedBox(width: 8),
+              _InfoChip(Icons.fact_check_outlined, "Thực tế: ${audit.actualQty}", varColor),
             ],
           ),
-          if (audit['adjustment_reason'] != null)
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.person_outline, size: 13, color: Colors.white24),
+              const SizedBox(width: 4),
+              Text(audit.userFullName ?? 'N/A', style: AppTheme.captionStyle.copyWith(fontSize: 11)),
+              const SizedBox(width: 12),
+              Icon(Icons.schedule_outlined, size: 13, color: Colors.white24),
+              const SizedBox(width: 4),
+              Text(DateFormat('dd/MM/yyyy HH:mm').format(audit.createdAt.toLocal()),
+                  style: AppTheme.captionStyle.copyWith(fontSize: 11)),
+            ],
+          ),
+          if (audit.adjustmentReason?.isNotEmpty == true) ...[
+            const SizedBox(height: 10),
             Container(
-              margin: const EdgeInsets.only(top: 12),
-              padding: const EdgeInsets.all(8),
               width: double.infinity,
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.02),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(
-                "Lý do: ${audit['adjustment_reason']}",
-                style: const TextStyle(
-                  color: Colors.white54,
-                  fontSize: 11,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
+              child: Text("Lý do: ${audit.adjustmentReason}", style: AppTheme.captionStyle.copyWith(fontSize: 11, fontStyle: FontStyle.italic)),
             ),
+          ],
         ],
       ),
     );
   }
+}
 
-  void _showNewAuditDialog() {
-    Get.snackbar(
-      "Tính năng",
-      "Giao diện chọn lô hàng và nhập số lượng thực tế đang được hoàn thiện",
-      snackPosition: SnackPosition.BOTTOM,
-      colorText: Colors.white,
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const _InfoChip(this.icon, this.label, this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: color),
+        const SizedBox(width: 4),
+        Text(label, style: TextStyle(color: color, fontSize: 11)),
+      ],
     );
   }
 }
