@@ -8,7 +8,6 @@ class ZenithCard extends StatelessWidget {
   final Color? borderColor;
   final double radius;
   final List<BoxShadow>? shadows;
-
   const ZenithCard({
     super.key,
     required this.child,
@@ -17,14 +16,14 @@ class ZenithCard extends StatelessWidget {
     this.radius = 20,
     this.shadows,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: padding ?? const EdgeInsets.all(20),
-      decoration: AppTheme.cardDecoration(borderColor: borderColor, radius: radius).copyWith(
-        boxShadow: shadows ?? AppTheme.luxuryShadow,
-      ),
+      decoration: AppTheme.cardDecoration(
+        borderColor: borderColor,
+        radius: radius,
+      ).copyWith(boxShadow: shadows ?? AppTheme.luxuryShadow),
       child: child,
     );
   }
@@ -33,9 +32,7 @@ class ZenithCard extends StatelessWidget {
 class ZenithBadge extends StatelessWidget {
   final String label;
   final Color color;
-
   const ZenithBadge({super.key, required this.label, required this.color});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -65,7 +62,6 @@ class ZenithButton extends StatelessWidget {
   final IconData? icon;
   final bool isLoading;
   final double height;
-
   const ZenithButton({
     super.key,
     required this.label,
@@ -75,7 +71,6 @@ class ZenithButton extends StatelessWidget {
     this.isLoading = false,
     this.height = 54,
   });
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -92,14 +87,23 @@ class ZenithButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: isLoading
                 ? []
-                : [BoxShadow(color: AppTheme.primaryColor.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 6))],
+                : [
+                    BoxShadow(
+                      color: AppTheme.primaryColor.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
           ),
           child: Center(
             child: isLoading
                 ? const SizedBox(
                     width: 22,
                     height: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white60),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white60,
+                    ),
                   )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
@@ -131,7 +135,6 @@ class EmptyState extends StatelessWidget {
   final IconData icon;
   final String? actionLabel;
   final VoidCallback? onAction;
-
   const EmptyState({
     super.key,
     required this.message,
@@ -139,7 +142,6 @@ class EmptyState extends StatelessWidget {
     this.actionLabel,
     this.onAction,
   });
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -164,7 +166,10 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: 20),
             TextButton(
               onPressed: onAction,
-              child: Text(actionLabel!, style: const TextStyle(color: AppTheme.primaryColor)),
+              child: Text(
+                actionLabel!,
+                style: const TextStyle(color: AppTheme.primaryColor),
+              ),
             ),
           ],
         ],
@@ -179,7 +184,6 @@ class ZenithStatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String? subtitle;
-
   const ZenithStatCard({
     super.key,
     required this.title,
@@ -188,12 +192,17 @@ class ZenithStatCard extends StatelessWidget {
     required this.color,
     this.subtitle,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: AppTheme.cardDecoration().copyWith(
-        boxShadow: [BoxShadow(color: color.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Stack(
         children: [
@@ -203,10 +212,10 @@ class ZenithStatCard extends StatelessWidget {
             child: Icon(icon, size: 56, color: color.withOpacity(0.04)),
           ),
           Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
@@ -214,14 +223,22 @@ class ZenithStatCard extends StatelessWidget {
                     color: color.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: color, size: 20),
+                  child: Icon(icon, color: color, size: 18),
                 ),
-                const Spacer(),
-                Text(value, style: AppTheme.numberStyle.copyWith(fontSize: 24)),
+                const SizedBox(height: 10),
+                Text(value, style: AppTheme.numberStyle.copyWith(fontSize: 22)),
                 const SizedBox(height: 2),
                 Text(title, style: AppTheme.labelStyle),
                 if (subtitle != null)
-                  Text(subtitle!, style: AppTheme.captionStyle.copyWith(fontSize: 10, color: color.withOpacity(0.7))),
+                  Text(
+                    subtitle!,
+                    style: AppTheme.captionStyle.copyWith(
+                      fontSize: 10,
+                      color: color.withOpacity(0.7),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
               ],
             ),
           ),
@@ -234,9 +251,7 @@ class ZenithStatCard extends StatelessWidget {
 class SectionHeader extends StatelessWidget {
   final String title;
   final Widget? trailing;
-
   const SectionHeader({super.key, required this.title, this.trailing});
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -253,7 +268,6 @@ class FadeSlideItem extends StatelessWidget {
   final int index;
   final Widget child;
   const FadeSlideItem({super.key, required this.index, required this.child});
-
   @override
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(

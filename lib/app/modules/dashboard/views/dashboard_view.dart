@@ -10,7 +10,6 @@ import '../../../core/user_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +18,10 @@ class DashboardView extends GetView<DashboardController> {
         title: const Text("ZENITH STOCK"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_outlined, color: AppTheme.primaryColor),
+            icon: const Icon(
+              Icons.notifications_none_outlined,
+              color: AppTheme.primaryColor,
+            ),
             onPressed: () {},
           ),
           IconButton(
@@ -30,7 +32,9 @@ class DashboardView extends GetView<DashboardController> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
+          return const Center(
+            child: CircularProgressIndicator(color: AppTheme.primaryColor),
+          );
         }
         return RefreshIndicator(
           color: AppTheme.primaryColor,
@@ -69,7 +73,10 @@ class DashboardView extends GetView<DashboardController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(controller.greeting, style: AppTheme.captionStyle.copyWith(fontSize: 14)),
+                Text(
+                  controller.greeting,
+                  style: AppTheme.captionStyle.copyWith(fontSize: 14),
+                ),
                 const SizedBox(height: 4),
                 Text(name, style: AppTheme.headlineStyle),
                 if (Get.isRegistered<UserController>())
@@ -78,21 +85,35 @@ class DashboardView extends GetView<DashboardController> {
                     if (role == null) return const SizedBox.shrink();
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
-                      child: ZenithBadge(label: role.toUpperCase(), color: AppTheme.primaryColor),
+                      child: ZenithBadge(
+                        label: role.toUpperCase(),
+                        color: AppTheme.primaryColor,
+                      ),
                     );
                   }),
               ],
             ),
           ),
-
           Obx(() {
-            final initials = Get.isRegistered<UserController>() ? UserController.to.initials : 'U';
+            final initials = Get.isRegistered<UserController>()
+                ? UserController.to.initials
+                : 'U';
             return Container(
               width: 54,
               height: 54,
-              decoration: AppTheme.glowDecoration(color: AppTheme.primaryColor, radius: 27),
+              decoration: AppTheme.glowDecoration(
+                color: AppTheme.primaryColor,
+                radius: 27,
+              ),
               child: Center(
-                child: Text(initials, style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+                child: Text(
+                  initials,
+                  style: GoogleFonts.outfit(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
               ),
             );
           }),
@@ -102,85 +123,169 @@ class DashboardView extends GetView<DashboardController> {
   }
 
   Widget _buildSummaryCards() {
-    return Obx(() => GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 14,
-      mainAxisSpacing: 14,
-      childAspectRatio: 1.15,
-      children: [
-        ZenithStatCard(
-          title: "TỔNG TỒN KHO",
-          value: controller.totalStock.value.toString(),
-          icon: Icons.inventory_2_rounded,
-          color: AppTheme.primaryColor,
-        ),
-        ZenithStatCard(
-          title: "SẮP HẾT HÀNG",
-          value: controller.lowStockCount.value.toString(),
-          icon: Icons.warning_amber_rounded,
-          color: AppTheme.warningColor,
-          subtitle: controller.lowStockCount.value > 0 ? 'Cần nhập thêm' : 'Ổn định',
-        ),
-        ZenithStatCard(
-          title: "NHẬP TUẦN NÀY",
-          value: controller.inboundThisWeek.value.toString(),
-          icon: Icons.south_west_rounded,
-          color: AppTheme.successColor,
-        ),
-        ZenithStatCard(
-          title: "XUẤT TUẦN NÀY",
-          value: controller.outboundThisWeek.value.toString(),
-          icon: Icons.north_east_rounded,
-          color: AppTheme.dangerColor,
-        ),
-      ],
-    ));
-  }
-
-  Widget _buildQuickNav(BuildContext context) {
-    final items = [
-      _QuickNavItem(Icons.inventory_2_outlined, "Kho hàng", AppTheme.accentColor, Routes.INVENTORY),
-      _QuickNavItem(Icons.swap_horiz_rounded, "Giao dịch", AppTheme.successColor, Routes.TRANSACTIONS),
-      _QuickNavItem(Icons.playlist_add_check_rounded, "Kiểm kê", AppTheme.warningColor, Routes.AUDIT),
-      _QuickNavItem(Icons.person_outline_rounded, "Hồ sơ", AppTheme.primaryColor, Routes.PROFILE),
-    ];
-
-    return ZenithCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Obx(
+      () => GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        crossAxisSpacing: 14,
+        mainAxisSpacing: 14,
+        childAspectRatio: 1.0,
         children: [
-          const SectionHeader(title: "Điều hướng nhanh"),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: items.map((item) => _buildQuickNavButton(item)).toList(),
+          ZenithStatCard(
+            title: "TỔNG TỒN KHO",
+            value: controller.totalStock.value.toString(),
+            icon: Icons.inventory_2_rounded,
+            color: AppTheme.primaryColor,
+          ),
+          ZenithStatCard(
+            title: "SẮP HẾT HÀNG",
+            value: controller.lowStockCount.value.toString(),
+            icon: Icons.warning_amber_rounded,
+            color: AppTheme.warningColor,
+            subtitle: controller.lowStockCount.value > 0
+                ? 'Cần nhập thêm'
+                : 'Ổn định',
+          ),
+          ZenithStatCard(
+            title: "NHẬP TUẦN NÀY",
+            value: controller.inboundThisWeek.value.toString(),
+            icon: Icons.south_west_rounded,
+            color: AppTheme.successColor,
+          ),
+          ZenithStatCard(
+            title: "XUẤT TUẦN NÀY",
+            value: controller.outboundThisWeek.value.toString(),
+            icon: Icons.north_east_rounded,
+            color: AppTheme.dangerColor,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickNavButton(_QuickNavItem item) {
-    return GestureDetector(
-      onTap: () => Get.toNamed(item.route),
-      child: Column(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: item.color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: item.color.withOpacity(0.2)),
-            ),
-            child: Icon(item.icon, color: item.color, size: 24),
+  Widget _buildQuickNav(BuildContext context) {
+    return Obx(() {
+      final uc = Get.isRegistered<UserController>() ? UserController.to : null;
+      final isAdmin = uc?.isAdmin ?? false;
+      final canStock = uc?.canManageProducts ?? false;
+      final canTx = uc?.canCreateTx ?? true;
+      final canAudit = uc?.canAudit ?? false;
+      final items = <_QuickNavItem>[
+        if (canTx)
+          _QuickNavItem(
+            Icons.south_west_rounded,
+            "Nhập kho",
+            AppTheme.successColor,
+            Routes.CREATE_TRANSACTION,
+            type: 'IN',
           ),
-          const SizedBox(height: 8),
-          Text(item.label, style: AppTheme.captionStyle.copyWith(fontSize: 11)),
+        if (canTx)
+          _QuickNavItem(
+            Icons.north_east_rounded,
+            "Xuất kho",
+            AppTheme.dangerColor,
+            Routes.CREATE_TRANSACTION,
+            type: 'OUT',
+          ),
+        if (canStock || isAdmin)
+          _QuickNavItem(
+            Icons.inventory_2_outlined,
+            "Kho hàng",
+            AppTheme.accentColor,
+            Routes.INVENTORY,
+          ),
+        _QuickNavItem(
+          Icons.swap_horiz_rounded,
+          "Giao dịch",
+          AppTheme.primaryColor,
+          Routes.TRANSACTIONS,
+        ),
+        if (canAudit || isAdmin)
+          _QuickNavItem(
+            Icons.playlist_add_check_rounded,
+            "Kiểm kê",
+            AppTheme.warningColor,
+            Routes.CREATE_AUDIT,
+          ),
+        if (isAdmin)
+          _QuickNavItem(
+            Icons.people_outline_rounded,
+            "Nhân viên",
+            const Color(0xFF9C88FF),
+            Routes.ADMIN,
+          ),
+        _QuickNavItem(
+          Icons.person_outline_rounded,
+          "Hồ sơ",
+          const Color(0xFF6C8EBF),
+          Routes.PROFILE,
+        ),
+      ];
+      if (items.isEmpty) return const SizedBox.shrink();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(title: "Thao tác nhanh"),
+          const SizedBox(height: 14),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 3,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.05,
+            children: items.map((item) => _buildNavCell(item)).toList(),
+          ),
         ],
+      );
+    });
+  }
+
+  Widget _buildNavCell(_QuickNavItem item) {
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(item.route, arguments: item.type);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        decoration: BoxDecoration(
+          color: AppTheme.cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: item.color.withOpacity(0.22), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: item.color.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: item.color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(item.icon, color: item.color, size: 22),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              item.label,
+              style: TextStyle(
+                color: item.color,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -198,9 +303,18 @@ class DashboardView extends GetView<DashboardController> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("BIẾN ĐỘNG KHO", style: AppTheme.labelStyle.copyWith(fontSize: 11, letterSpacing: 2)),
+                  Text(
+                    "BIẾN ĐỘNG KHO",
+                    style: AppTheme.labelStyle.copyWith(
+                      fontSize: 11,
+                      letterSpacing: 2,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text("7 ngày gần nhất", style: AppTheme.captionStyle.copyWith(fontSize: 11)),
+                  Text(
+                    "7 ngày gần nhất",
+                    style: AppTheme.captionStyle.copyWith(fontSize: 11),
+                  ),
                 ],
               ),
               ZenithBadge(label: "LIVE", color: AppTheme.successColor),
@@ -213,7 +327,10 @@ class DashboardView extends GetView<DashboardController> {
               final data = controller.chartData;
               if (data.isEmpty || data.every((d) => d == 0)) {
                 return Center(
-                  child: Text("Chưa có dữ liệu giao dịch", style: AppTheme.captionStyle),
+                  child: Text(
+                    "Chưa có dữ liệu giao dịch",
+                    style: AppTheme.captionStyle,
+                  ),
                 );
               }
               return LineChart(
@@ -221,8 +338,15 @@ class DashboardView extends GetView<DashboardController> {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    horizontalInterval: (data.reduce((a, b) => a > b ? a : b) / 4).clamp(1, double.infinity),
-                    getDrawingHorizontalLine: (v) => FlLine(color: Colors.white.withOpacity(0.05), strokeWidth: 1),
+                    horizontalInterval:
+                        (data.reduce((a, b) => a > b ? a : b) / 4).clamp(
+                          1,
+                          double.infinity,
+                        ),
+                    getDrawingHorizontalLine: (v) => FlLine(
+                      color: Colors.white.withOpacity(0.05),
+                      strokeWidth: 1,
+                    ),
                   ),
                   titlesData: FlTitlesData(
                     bottomTitles: AxisTitles(
@@ -230,20 +354,37 @@ class DashboardView extends GetView<DashboardController> {
                         showTitles: true,
                         getTitlesWidget: (v, _) {
                           final i = v.toInt();
-                          if (i < 0 || i >= days.length) return const SizedBox();
-                          return Text(days[i], style: const TextStyle(color: Colors.white24, fontSize: 10));
+                          if (i < 0 || i >= days.length)
+                            return const SizedBox();
+                          return Text(
+                            days[i],
+                            style: const TextStyle(
+                              color: Colors.white24,
+                              fontSize: 10,
+                            ),
+                          );
                         },
                         interval: 1,
                       ),
                     ),
-                    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   borderData: FlBorderData(show: false),
                   lineBarsData: [
                     LineChartBarData(
-                      spots: data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList(),
+                      spots: data
+                          .asMap()
+                          .entries
+                          .map((e) => FlSpot(e.key.toDouble(), e.value))
+                          .toList(),
                       isCurved: true,
                       curveSmoothness: 0.3,
                       color: AppTheme.primaryColor,
@@ -262,7 +403,10 @@ class DashboardView extends GetView<DashboardController> {
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [AppTheme.primaryColor.withOpacity(0.2), Colors.transparent],
+                          colors: [
+                            AppTheme.primaryColor.withOpacity(0.2),
+                            Colors.transparent,
+                          ],
                         ),
                       ),
                     ),
@@ -286,27 +430,38 @@ class DashboardView extends GetView<DashboardController> {
           const SizedBox(height: 14),
           ...controller.topProducts.asMap().entries.map((e) {
             final item = e.value as Map<String, dynamic>;
-            final idx  = e.key;
+            final idx = e.key;
             final medals = ['🥇', '🥈', '🥉'];
             return FadeSlideItem(
               index: idx,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: ZenithCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   child: Row(
                     children: [
-                      Text(idx < 3 ? medals[idx] : '${idx + 1}.', style: const TextStyle(fontSize: 20)),
+                      Text(
+                        idx < 3 ? medals[idx] : '${idx + 1}.',
+                        style: const TextStyle(fontSize: 20),
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Text(
-                          (item['products'] as Map<String, dynamic>?)?['name'] ?? 'Sản phẩm',
+                          (item['products']
+                                  as Map<String, dynamic>?)?['name'] ??
+                              'Sản phẩm',
                           style: AppTheme.titleStyle.copyWith(fontSize: 14),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      ZenithBadge(label: "${item['quantity']} đơn", color: AppTheme.accentColor),
+                      ZenithBadge(
+                        label: "${item['quantity']} đơn",
+                        color: AppTheme.accentColor,
+                      ),
                     ],
                   ),
                 ),
@@ -321,67 +476,145 @@ class DashboardView extends GetView<DashboardController> {
   Widget _buildDrawer() {
     return Drawer(
       backgroundColor: AppTheme.surfaceColor,
-      child: Column(
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: AppTheme.cardColor,
-              border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.06))),
-            ),
-            child: Obx(() {
-              final name     = Get.isRegistered<UserController>() ? UserController.to.displayName : 'Zenith';
-              final initials = Get.isRegistered<UserController>() ? UserController.to.initials : 'Z';
-              final role     = Get.isRegistered<UserController>() ? UserController.to.roleName : null;
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: AppTheme.glowDecoration(color: AppTheme.primaryColor, radius: 32),
-                    child: Center(
-                      child: Text(initials, style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
-                    ),
+      child: Obx(() {
+        final uc = Get.isRegistered<UserController>()
+            ? UserController.to
+            : null;
+        final isAdmin = uc?.isAdmin ?? false;
+        final canStock = uc?.canManageProducts ?? false;
+        final canAudit = uc?.canAudit ?? false;
+        final canTx = uc?.canCreateTx ?? true;
+        return Column(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: AppTheme.cardColor,
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.06),
                   ),
-                  const SizedBox(height: 12),
-                  Text(name, style: AppTheme.titleStyle.copyWith(fontSize: 15)),
-                  if (role != null) ...[
-                    const SizedBox(height: 6),
-                    ZenithBadge(label: role.toUpperCase(), color: AppTheme.primaryColor),
+                ),
+              ),
+              child: Obx(() {
+                final name = Get.isRegistered<UserController>()
+                    ? UserController.to.displayName
+                    : 'Zenith';
+                final initials = Get.isRegistered<UserController>()
+                    ? UserController.to.initials
+                    : 'Z';
+                final role = Get.isRegistered<UserController>()
+                    ? UserController.to.roleName
+                    : null;
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: AppTheme.glowDecoration(
+                        color: AppTheme.primaryColor,
+                        radius: 32,
+                      ),
+                      child: Center(
+                        child: Text(
+                          initials,
+                          style: GoogleFonts.outfit(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      name,
+                      style: AppTheme.titleStyle.copyWith(fontSize: 15),
+                    ),
+                    if (role != null) ...[
+                      const SizedBox(height: 6),
+                      ZenithBadge(
+                        label: role.toUpperCase(),
+                        color: AppTheme.primaryColor,
+                      ),
+                    ],
                   ],
-                ],
-              );
-            }),
-          ),
-          _drawerItem(Icons.dashboard_outlined, "Tổng quan", true, () => Get.back()),
-          _drawerItem(Icons.inventory_2_outlined, "Kho hàng", false, () => Get.toNamed(Routes.INVENTORY)),
-          _drawerItem(Icons.swap_horiz_rounded, "Nhập / Xuất", false, () => Get.toNamed(Routes.TRANSACTIONS)),
-          _drawerItem(Icons.playlist_add_check_rounded, "Kiểm kê", false, () => Get.toNamed(Routes.AUDIT)),
-          _drawerItem(Icons.person_outline_rounded, "Hồ sơ cá nhân", false, () => Get.toNamed(Routes.PROFILE)),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: ZenithButton(
-              label: "ĐĂNG XUẤT",
-              gradient: AppTheme.dangerGradient,
-              icon: Icons.logout_rounded,
-              onPressed: controller.logout,
+                );
+              }),
             ),
-          ),
-        ],
-      ),
+            _drawerItem(Icons.dashboard_outlined, "Tổng quan", true, Get.back),
+            if (canStock || isAdmin)
+              _drawerItem(
+                Icons.inventory_2_outlined,
+                "Kho hàng",
+                false,
+                () => Get.toNamed(Routes.INVENTORY),
+              ),
+            if (canTx)
+              _drawerItem(
+                Icons.swap_horiz_rounded,
+                "Nhập / Xuất",
+                false,
+                () => Get.toNamed(Routes.TRANSACTIONS),
+              ),
+            if (canAudit || isAdmin)
+              _drawerItem(
+                Icons.playlist_add_check_rounded,
+                "Kiểm kê",
+                false,
+                () => Get.toNamed(Routes.AUDIT),
+              ),
+            if (isAdmin)
+              _drawerItem(
+                Icons.people_outline_rounded,
+                "Quản lý nhân viên",
+                false,
+                () => Get.toNamed(Routes.ADMIN),
+                color: const Color(0xFF9C88FF),
+              ),
+            _drawerItem(
+              Icons.person_outline_rounded,
+              "Hồ sơ cá nhân",
+              false,
+              () => Get.toNamed(Routes.PROFILE),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ZenithButton(
+                label: "ĐĂNG XUẤT",
+                gradient: AppTheme.dangerGradient,
+                icon: Icons.logout_rounded,
+                onPressed: controller.logout,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
-  Widget _drawerItem(IconData icon, String title, bool isSelected, VoidCallback onTap) {
+  Widget _drawerItem(
+    IconData icon,
+    String title,
+    bool isSelected,
+    VoidCallback onTap, {
+    Color? color,
+  }) {
+    final c = color ?? (isSelected ? AppTheme.primaryColor : Colors.white38);
     return ListTile(
-      leading: Icon(icon, color: isSelected ? AppTheme.primaryColor : Colors.white38, size: 22),
-      title: Text(title, style: TextStyle(color: isSelected ? AppTheme.primaryColor : Colors.white70, fontSize: 14)),
+      leading: Icon(icon, color: c, size: 22),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isSelected ? AppTheme.primaryColor : Colors.white70,
+          fontSize: 14,
+        ),
+      ),
       selected: isSelected,
-      selectedTileColor: AppTheme.primaryColor.withOpacity(0.08),
+      selectedTileColor: AppTheme.primaryColor.withValues(alpha: 0.08),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-      onTap: onTap,
     );
   }
 }
@@ -391,5 +624,12 @@ class _QuickNavItem {
   final String label;
   final Color color;
   final String route;
-  const _QuickNavItem(this.icon, this.label, this.color, this.route);
+  final String? type;
+  const _QuickNavItem(
+    this.icon,
+    this.label,
+    this.color,
+    this.route, {
+    this.type,
+  });
 }

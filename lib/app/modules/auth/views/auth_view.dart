@@ -7,24 +7,21 @@ import '../../../core/theme.dart';
 
 class AuthView extends GetView<AuthController> {
   const AuthView({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image with Dark Overlay
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/login_bg.png'),
                 fit: BoxFit.cover,
-                opacity: 0.3, // Giữ độ tối để chữ bên trên nổi bật
+                opacity: 0.3,
               ),
               color: Color(0xFF0F1214),
             ),
           ),
-          // Glassmorphism effect circle
           Positioned(
             top: -100,
             right: -100,
@@ -37,7 +34,6 @@ class AuthView extends GetView<AuthController> {
               ),
             ),
           ),
-          
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -46,7 +42,6 @@ class AuthView extends GetView<AuthController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Logo hình ảnh thương hiệu với hiệu ứng đổ bóng nhẹ
                       Center(
                         child: Container(
                           decoration: BoxDecoration(
@@ -56,7 +51,7 @@ class AuthView extends GetView<AuthController> {
                                 color: AppTheme.primaryColor.withOpacity(0.2),
                                 blurRadius: 40,
                                 spreadRadius: 5,
-                              )
+                              ),
                             ],
                           ),
                           child: Image.asset(
@@ -68,11 +63,12 @@ class AuthView extends GetView<AuthController> {
                       const SizedBox(height: 24),
                       Text(
                         "ZENITH STOCK",
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 4,
-                        ),
+                        style: Theme.of(context).textTheme.headlineLarge
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 4,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
@@ -87,8 +83,6 @@ class AuthView extends GetView<AuthController> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 48),
-                      
-                      // Glassmorphism Login Card
                       ClipRRect(
                         borderRadius: BorderRadius.circular(32),
                         child: BackdropFilter(
@@ -98,11 +92,12 @@ class AuthView extends GetView<AuthController> {
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.05),
                               borderRadius: BorderRadius.circular(32),
-                              border: Border.all(color: Colors.white.withOpacity(0.1)),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.1),
+                              ),
                             ),
                             child: Column(
                               children: [
-                                // Email Input
                                 TextField(
                                   onChanged: (v) => controller.email.value = v,
                                   decoration: const InputDecoration(
@@ -112,55 +107,66 @@ class AuthView extends GetView<AuthController> {
                                   keyboardType: TextInputType.emailAddress,
                                 ),
                                 const SizedBox(height: 20),
-                                
-                                // Password Input
-                                Obx(() => TextField(
-                                  onChanged: (v) => controller.password.value = v,
-                                  obscureText: !controller.showPassword.value,
-                                  decoration: InputDecoration(
-                                    hintText: "Mật khẩu",
-                                    prefixIcon: const Icon(Icons.lock_outline),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        controller.showPassword.value 
-                                          ? Icons.visibility_off_outlined 
-                                          : Icons.visibility_outlined,
-                                        size: 20,
+                                Obx(
+                                  () => TextField(
+                                    onChanged: (v) =>
+                                        controller.password.value = v,
+                                    obscureText: !controller.showPassword.value,
+                                    decoration: InputDecoration(
+                                      hintText: "Mật khẩu",
+                                      prefixIcon: const Icon(
+                                        Icons.lock_outline,
                                       ),
-                                      onPressed: controller.togglePasswordVisibility,
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          controller.showPassword.value
+                                              ? Icons.visibility_off_outlined
+                                              : Icons.visibility_outlined,
+                                          size: 20,
+                                        ),
+                                        onPressed:
+                                            controller.togglePasswordVisibility,
+                                      ),
                                     ),
                                   ),
-                                )),
+                                ),
                                 const SizedBox(height: 40),
-                                
-                                // Login Button
-                                Obx(() => ElevatedButton(
-                                  onPressed: controller.isLoading.value ? null : controller.login,
-                                  style: ElevatedButton.styleFrom(
-                                    minimumSize: const Size(double.infinity, 56),
+                                Obx(
+                                  () => ElevatedButton(
+                                    onPressed: controller.isLoading.value
+                                        ? null
+                                        : controller.login,
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: const Size(
+                                        double.infinity,
+                                        56,
+                                      ),
+                                    ),
+                                    child: controller.isLoading.value
+                                        ? const SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.black,
+                                            ),
+                                          )
+                                        : const Text("VÀO HỆ THỐNG"),
                                   ),
-                                  child: controller.isLoading.value 
-                                    ? const SizedBox(
-                                        height: 20, 
-                                        width: 20, 
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)
-                                      )
-                                    : const Text("VÀO HỆ THỐNG"),
-                                )),
+                                ),
                               ],
                             ),
                           ),
                         ),
                       ),
-                      
                       const SizedBox(height: 32),
                       TextButton(
                         onPressed: () => controller.signUp(),
                         child: const Text(
-                          "CHƯA CÓ TÀI KHOẢN? ĐĂNG KÝ NGAY", 
+                          "CHƯA CÓ TÀI KHOẢN? ĐĂNG KÝ NGAY",
                           style: TextStyle(
-                            color: Colors.white70, 
-                            fontSize: 12, 
+                            color: Colors.white70,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                           ),

@@ -13,7 +13,6 @@ class Product {
   final int currentStock;
   final String? description;
   final String? imageUrl;
-
   const Product({
     required this.id,
     required this.name,
@@ -30,18 +29,19 @@ class Product {
     this.description,
     this.imageUrl,
   });
-
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id'] as String,
       name: json['name'] as String,
       sku: json['sku'] as String,
       categoryId: json['category_id'] as int?,
-      categoryName: (json['categories'] as Map<String, dynamic>?)?['name'] as String?,
+      categoryName:
+          (json['categories'] as Map<String, dynamic>?)?['name'] as String?,
       unitId: json['unit_id'] as int?,
       unitName: (json['units'] as Map<String, dynamic>?)?['name'] as String?,
       supplierId: json['supplier_id'] as String?,
-      supplierName: (json['suppliers'] as Map<String, dynamic>?)?['name'] as String?,
+      supplierName:
+          (json['suppliers'] as Map<String, dynamic>?)?['name'] as String?,
       minStockLevel: (json['min_stock_level'] as num?)?.toInt() ?? 10,
       maxStockLevel: (json['max_stock_level'] as num?)?.toInt() ?? 1000,
       currentStock: (json['current_stock'] as num?)?.toInt() ?? 0,
@@ -49,10 +49,8 @@ class Product {
       imageUrl: json['image_url'] as String?,
     );
   }
-
   bool get isLowStock => currentStock <= minStockLevel;
   bool get isOutOfStock => currentStock == 0;
-
   StockStatus get stockStatus {
     if (isOutOfStock) return StockStatus.outOfStock;
     if (isLowStock) return StockStatus.low;
@@ -95,7 +93,6 @@ class Batch {
   final double? costPrice;
   final DateTime? expiryDate;
   final DateTime createdAt;
-
   const Batch({
     required this.id,
     required this.productId,
@@ -110,20 +107,24 @@ class Batch {
     this.expiryDate,
     required this.createdAt,
   });
-
   factory Batch.fromJson(Map<String, dynamic> json) {
     return Batch(
       id: json['id'] as String,
       productId: json['product_id'] as String,
-      productName: (json['products'] as Map<String, dynamic>?)?['name'] as String?,
-      productSku: (json['products'] as Map<String, dynamic>?)?['sku'] as String?,
+      productName:
+          (json['products'] as Map<String, dynamic>?)?['name'] as String?,
+      productSku:
+          (json['products'] as Map<String, dynamic>?)?['sku'] as String?,
       warehouseId: json['warehouse_id'] as int?,
-      warehouseName: (json['warehouses'] as Map<String, dynamic>?)?['name'] as String?,
+      warehouseName:
+          (json['warehouses'] as Map<String, dynamic>?)?['name'] as String?,
       batchCode: json['batch_code'] as String,
       currentQuantity: (json['current_quantity'] as num?)?.toInt() ?? 0,
       initialQuantity: (json['initial_quantity'] as num?)?.toInt() ?? 0,
       costPrice: (json['cost_price'] as num?)?.toDouble(),
-      expiryDate: json['expiry_date'] != null ? DateTime.tryParse(json['expiry_date']) : null,
+      expiryDate: json['expiry_date'] != null
+          ? DateTime.tryParse(json['expiry_date'])
+          : null,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -131,11 +132,18 @@ class Batch {
 
 class Warehouse {
   final int id;
+  final String code;
   final String name;
   final String? location;
-  const Warehouse({required this.id, required this.name, this.location});
+  const Warehouse({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.location,
+  });
   factory Warehouse.fromJson(Map<String, dynamic> json) => Warehouse(
     id: json['id'] as int,
+    code: json['code'] as String? ?? '',
     name: json['name'] as String,
     location: json['location'] as String?,
   );

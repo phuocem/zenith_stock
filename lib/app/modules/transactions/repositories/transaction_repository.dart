@@ -5,9 +5,16 @@ import '../../../data/models/product_model.dart';
 class TransactionRepository {
   final TransactionProvider _provider;
   TransactionRepository(this._provider);
-
-  Future<List<Transaction>> fetchHistory({String? type, int limit = 50}) async {
-    final data = await _provider.getHistory(type: type, limit: limit);
+  Future<List<Transaction>> fetchHistory({
+    String? type,
+    int? warehouseId,
+    int limit = 50,
+  }) async {
+    final data = await _provider.getHistory(
+      type: type,
+      warehouseId: warehouseId,
+      limit: limit,
+    );
     return data.map(Transaction.fromJson).toList();
   }
 
@@ -16,8 +23,12 @@ class TransactionRepository {
     return data.map(Warehouse.fromJson).toList();
   }
 
-  Future<List<Product>> fetchProductsWithAvailableBatches() async {
-    final data = await _provider.getProductsWithAvailableBatches();
+  Future<List<Product>> fetchProductsWithAvailableBatches({
+    int? warehouseId,
+  }) async {
+    final data = await _provider.getProductsWithAvailableBatches(
+      warehouseId: warehouseId,
+    );
     return data.map(Product.fromJson).toList();
   }
 
@@ -26,13 +37,25 @@ class TransactionRepository {
     return data.map(Product.fromJson).toList();
   }
 
-  Future<List<Batch>> fetchAvailableBatches(String productId) async {
-    final data = await _provider.getAvailableBatchesForProduct(productId);
+  Future<List<Batch>> fetchAvailableBatches(
+    String productId, {
+    int? warehouseId,
+  }) async {
+    final data = await _provider.getAvailableBatchesForProduct(
+      productId,
+      warehouseId: warehouseId,
+    );
     return data.map(Batch.fromJson).toList();
   }
 
-  Future<List<Batch>> fetchAllBatches(String productId) async {
-    final data = await _provider.getBatchesForProduct(productId);
+  Future<List<Batch>> fetchAllBatches(
+    String productId, {
+    int? warehouseId,
+  }) async {
+    final data = await _provider.getBatchesForProduct(
+      productId,
+      warehouseId: warehouseId,
+    );
     return data.map(Batch.fromJson).toList();
   }
 
@@ -50,13 +73,10 @@ class TransactionRepository {
       'notes': notes,
       'reference_number': referenceNumber,
     });
-
     final transId = transRes['id'];
-    final itemsJson = items.map((item) => {
-      'transaction_id': transId,
-      ...item.toApiJson(),
-    }).toList();
-
+    final itemsJson = items
+        .map((item) => {'transaction_id': transId, ...item.toApiJson()})
+        .toList();
     await _provider.insertTransactionItems(itemsJson);
   }
 }

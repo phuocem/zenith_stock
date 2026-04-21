@@ -2,11 +2,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuditProvider {
   final SupabaseClient _supabase = Supabase.instance.client;
-
-  Future<List<Map<String, dynamic>>> getAudits({String? productId, int limit = 50}) async {
+  Future<List<Map<String, dynamic>>> getAudits({
+    String? productId,
+    int limit = 50,
+  }) async {
     var baseQuery = _supabase
         .from('inventory_audits')
-        .select('*, products(name, sku), profiles(full_name), warehouses(name)');
+        .select(
+          '*, products(name, sku), profiles(full_name), warehouses(name)',
+        );
     if (productId != null) {
       baseQuery = baseQuery.eq('product_id', productId);
     }
@@ -28,10 +32,14 @@ class AuditProvider {
         .order('name');
   }
 
-  Future<List<Map<String, dynamic>>> getBatchesForProduct(String productId) async {
+  Future<List<Map<String, dynamic>>> getBatchesForProduct(
+    String productId,
+  ) async {
     return await _supabase
         .from('batches')
-        .select('id, batch_code, current_quantity, warehouse_id, warehouses(name)')
+        .select(
+          'id, batch_code, current_quantity, warehouse_id, warehouses(name)',
+        )
         .eq('product_id', productId)
         .order('created_at', ascending: false);
   }

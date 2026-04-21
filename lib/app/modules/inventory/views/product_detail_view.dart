@@ -8,32 +8,37 @@ import '../../../data/models/product_model.dart';
 
 class ProductDetailView extends GetView<InventoryController> {
   const ProductDetailView({super.key});
-
   @override
   Widget build(BuildContext context) {
     final productId = Get.arguments as String;
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.fetchProductDetail(productId);
     });
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("CHI TIẾT SẢN PHẨM"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppTheme.accentColor),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: AppTheme.accentColor,
+            ),
             onPressed: () => controller.fetchProductDetail(productId),
           ),
         ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
+          return const Center(
+            child: CircularProgressIndicator(color: AppTheme.primaryColor),
+          );
         }
         final product = controller.selectedProduct.value;
         if (product == null) {
-          return const EmptyState(message: "Không tìm thấy sản phẩm", icon: Icons.search_off_rounded);
+          return const EmptyState(
+            message: "Không tìm thấy sản phẩm",
+            icon: Icons.search_off_rounded,
+          );
         }
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -48,7 +53,7 @@ class ProductDetailView extends GetView<InventoryController> {
               const SizedBox(height: 14),
               _buildBatchList(),
               const SizedBox(height: 24),
-              _buildDeleteButton(product),
+              _buildArchiveButton(product),
               const SizedBox(height: 24),
             ],
           ),
@@ -60,16 +65,15 @@ class ProductDetailView extends GetView<InventoryController> {
   Widget _buildProductHeader(Product product) {
     final status = product.stockStatus;
     Color statusColor = switch (status) {
-      StockStatus.normal   => AppTheme.successColor,
-      StockStatus.low      => AppTheme.warningColor,
+      StockStatus.normal => AppTheme.successColor,
+      StockStatus.low => AppTheme.warningColor,
       StockStatus.outOfStock => AppTheme.dangerColor,
     };
     String statusLabel = switch (status) {
-      StockStatus.normal   => "BÌNH THƯỜNG",
-      StockStatus.low      => "SẮP HẾT",
+      StockStatus.normal => "BÌNH THƯỜNG",
+      StockStatus.low => "SẮP HẾT",
       StockStatus.outOfStock => "HẾT HÀNG",
     };
-
     return ZenithCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,20 +89,30 @@ class ProductDetailView extends GetView<InventoryController> {
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: statusColor.withOpacity(0.2)),
                 ),
-                child: Icon(Icons.inventory_2_rounded, color: statusColor, size: 34),
+                child: Icon(
+                  Icons.inventory_2_rounded,
+                  color: statusColor,
+                  size: 34,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(product.name, style: AppTheme.headlineStyle.copyWith(fontSize: 20)),
+                    Text(
+                      product.name,
+                      style: AppTheme.headlineStyle.copyWith(fontSize: 20),
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 6,
                       children: [
-                        ZenithBadge(label: "SKU: ${product.sku}", color: AppTheme.accentColor),
+                        ZenithBadge(
+                          label: "SKU: ${product.sku}",
+                          color: AppTheme.accentColor,
+                        ),
                         ZenithBadge(label: statusLabel, color: statusColor),
                       ],
                     ),
@@ -110,12 +124,24 @@ class ProductDetailView extends GetView<InventoryController> {
           const SizedBox(height: 20),
           const Divider(color: Colors.white12),
           const SizedBox(height: 12),
-          _infoRow(Icons.category_outlined, "Danh mục", product.categoryName ?? "—"),
+          _infoRow(
+            Icons.category_outlined,
+            "Danh mục",
+            product.categoryName ?? "—",
+          ),
           const SizedBox(height: 8),
-          _infoRow(Icons.square_foot_outlined, "Đơn vị tính", product.unitName ?? "—"),
+          _infoRow(
+            Icons.square_foot_outlined,
+            "Đơn vị tính",
+            product.unitName ?? "—",
+          ),
           if (product.supplierName != null) ...[
             const SizedBox(height: 8),
-            _infoRow(Icons.business_outlined, "Nhà cung cấp", product.supplierName!),
+            _infoRow(
+              Icons.business_outlined,
+              "Nhà cung cấp",
+              product.supplierName!,
+            ),
           ],
           if (product.description?.isNotEmpty == true) ...[
             const SizedBox(height: 12),
@@ -141,7 +167,12 @@ class ProductDetailView extends GetView<InventoryController> {
         const SizedBox(width: 8),
         Text("$label:", style: AppTheme.captionStyle),
         const SizedBox(width: 8),
-        Expanded(child: Text(value, style: AppTheme.captionStyle.copyWith(color: Colors.white70))),
+        Expanded(
+          child: Text(
+            value,
+            style: AppTheme.captionStyle.copyWith(color: Colors.white70),
+          ),
+        ),
       ],
     );
   }
@@ -149,11 +180,29 @@ class ProductDetailView extends GetView<InventoryController> {
   Widget _buildStockSummary(Product product) {
     return Row(
       children: [
-        Expanded(child: _stockCard("TỒN HIỆN TẠI", product.currentStock.toString(), AppTheme.primaryColor)),
+        Expanded(
+          child: _stockCard(
+            "TỒN HIỆN TẠI",
+            product.currentStock.toString(),
+            AppTheme.primaryColor,
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _stockCard("TỒN TỐI THIỂU", product.minStockLevel.toString(), AppTheme.warningColor)),
+        Expanded(
+          child: _stockCard(
+            "TỒN TỐI THIỂU",
+            product.minStockLevel.toString(),
+            AppTheme.warningColor,
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _stockCard("TỒN TỐI ĐA", product.maxStockLevel.toString(), AppTheme.accentColor)),
+        Expanded(
+          child: _stockCard(
+            "TỒN TỐI ĐA",
+            product.maxStockLevel.toString(),
+            AppTheme.accentColor,
+          ),
+        ),
       ],
     );
   }
@@ -164,9 +213,16 @@ class ProductDetailView extends GetView<InventoryController> {
       decoration: AppTheme.cardDecoration(borderColor: color.withOpacity(0.2)),
       child: Column(
         children: [
-          Text(value, style: AppTheme.numberStyle.copyWith(color: color, fontSize: 22)),
+          Text(
+            value,
+            style: AppTheme.numberStyle.copyWith(color: color, fontSize: 22),
+          ),
           const SizedBox(height: 6),
-          Text(label, style: AppTheme.labelStyle.copyWith(fontSize: 8), textAlign: TextAlign.center),
+          Text(
+            label,
+            style: AppTheme.labelStyle.copyWith(fontSize: 8),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -186,7 +242,8 @@ class ProductDetailView extends GetView<InventoryController> {
         physics: const NeverScrollableScrollPhysics(),
         itemCount: batches.length,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (_, i) => FadeSlideItem(index: i, child: _batchCard(batches[i])),
+        itemBuilder: (_, i) =>
+            FadeSlideItem(index: i, child: _batchCard(batches[i])),
       );
     });
   }
@@ -201,7 +258,9 @@ class ProductDetailView extends GetView<InventoryController> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isEmpty ? Colors.white.withOpacity(0.04) : AppTheme.primaryColor.withOpacity(0.08),
+              color: isEmpty
+                  ? Colors.white.withOpacity(0.04)
+                  : AppTheme.primaryColor.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -215,16 +274,29 @@ class ProductDetailView extends GetView<InventoryController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(batch.batchCode, style: AppTheme.titleStyle.copyWith(fontSize: 14)),
+                Text(
+                  batch.batchCode,
+                  style: AppTheme.titleStyle.copyWith(fontSize: 14),
+                ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text(batch.warehouseName ?? 'Kho chính', style: AppTheme.captionStyle.copyWith(fontSize: 11)),
+                    Text(
+                      batch.warehouseName ?? 'Kho chính',
+                      style: AppTheme.captionStyle.copyWith(fontSize: 11),
+                    ),
                     if (batch.expiryDate != null) ...[
                       const SizedBox(width: 10),
-                      Icon(Icons.event_outlined, size: 12, color: Colors.white38),
+                      Icon(
+                        Icons.event_outlined,
+                        size: 12,
+                        color: Colors.white38,
+                      ),
                       const SizedBox(width: 4),
-                      Text(DateFormat('dd/MM/yyyy').format(batch.expiryDate!), style: AppTheme.captionStyle.copyWith(fontSize: 11)),
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(batch.expiryDate!),
+                        style: AppTheme.captionStyle.copyWith(fontSize: 11),
+                      ),
                     ],
                   ],
                 ),
@@ -234,11 +306,17 @@ class ProductDetailView extends GetView<InventoryController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('${batch.currentQuantity}', style: AppTheme.numberStyle.copyWith(
-                fontSize: 20,
-                color: isEmpty ? Colors.white24 : AppTheme.primaryColor,
-              )),
-              Text('/ ${batch.initialQuantity}', style: AppTheme.captionStyle.copyWith(fontSize: 11)),
+              Text(
+                '${batch.currentQuantity}',
+                style: AppTheme.numberStyle.copyWith(
+                  fontSize: 20,
+                  color: isEmpty ? Colors.white24 : AppTheme.primaryColor,
+                ),
+              ),
+              Text(
+                '/ ${batch.initialQuantity}',
+                style: AppTheme.captionStyle.copyWith(fontSize: 11),
+              ),
             ],
           ),
         ],
@@ -246,16 +324,17 @@ class ProductDetailView extends GetView<InventoryController> {
     );
   }
 
-  Widget _buildDeleteButton(Product product) {
-    return Obx(() => ZenithButton(
-      label: "XÓA SẢN PHẨM",
-      gradient: AppTheme.dangerGradient,
-      icon: Icons.delete_outline_rounded,
-      isLoading: controller.isLoading.value,
-      onPressed: () async {
-        await controller.deleteProduct(product);
-        if (!controller.isLoading.value) Get.back();
-      },
-    ));
+  Widget _buildArchiveButton(Product product) {
+    return Obx(
+      () => ZenithButton(
+        label: "NGỪNG KINH DOANH",
+        gradient: AppTheme.dangerGradient,
+        icon: Icons.archive_outlined,
+        isLoading: controller.isLoading.value,
+        onPressed: () async {
+          await controller.archiveProduct(product);
+        },
+      ),
+    );
   }
 }

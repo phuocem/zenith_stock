@@ -10,7 +10,6 @@ import '../../../routes/app_pages.dart';
 
 class TransactionView extends GetView<TransactionController> {
   const TransactionView({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +17,10 @@ class TransactionView extends GetView<TransactionController> {
         title: const Text("GIAO DỊCH KHO"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppTheme.accentColor),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: AppTheme.accentColor,
+            ),
             onPressed: controller.fetchHistory,
           ),
         ],
@@ -30,7 +32,11 @@ class TransactionView extends GetView<TransactionController> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.history.isEmpty) {
-                return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryColor,
+                  ),
+                );
               }
               if (controller.history.isEmpty) {
                 return const EmptyState(
@@ -112,17 +118,27 @@ class TransactionView extends GetView<TransactionController> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  color: sel ? AppTheme.primaryColor.withOpacity(0.15) : AppTheme.cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: sel ? AppTheme.primaryColor : Colors.white12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
                 ),
-                child: Text(labels[i], style: TextStyle(
-                  color: sel ? AppTheme.primaryColor : Colors.white54,
-                  fontWeight: sel ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 13,
-                )),
+                decoration: BoxDecoration(
+                  color: sel
+                      ? AppTheme.primaryColor.withOpacity(0.15)
+                      : AppTheme.cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: sel ? AppTheme.primaryColor : Colors.white12,
+                  ),
+                ),
+                child: Text(
+                  labels[i],
+                  style: TextStyle(
+                    color: sel ? AppTheme.primaryColor : Colors.white54,
+                    fontWeight: sel ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                ),
               ),
             );
           }),
@@ -135,29 +151,27 @@ class TransactionView extends GetView<TransactionController> {
 class _TransactionCard extends StatelessWidget {
   final Transaction transaction;
   const _TransactionCard({required this.transaction});
-
   @override
   Widget build(BuildContext context) {
     final t = transaction;
     Color typeColor = switch (t.type) {
-      'IN'     => AppTheme.successColor,
-      'OUT'    => AppTheme.dangerColor,
+      'IN' => AppTheme.successColor,
+      'OUT' => AppTheme.dangerColor,
       'ADJUST' => AppTheme.warningColor,
       _ => Colors.white54,
     };
     IconData typeIcon = switch (t.type) {
-      'IN'     => Icons.south_west_rounded,
-      'OUT'    => Icons.north_east_rounded,
+      'IN' => Icons.south_west_rounded,
+      'OUT' => Icons.north_east_rounded,
       'ADJUST' => Icons.tune_rounded,
       _ => Icons.swap_horiz,
     };
     String typeLabel = switch (t.type) {
-      'IN'     => "Phiếu Nhập Kho",
-      'OUT'    => "Phiếu Xuất Kho",
+      'IN' => "Phiếu Nhập Kho",
+      'OUT' => "Phiếu Xuất Kho",
       'ADJUST' => "Điều Chỉnh",
       _ => t.type,
     };
-
     return ZenithCard(
       padding: const EdgeInsets.all(14),
       child: Row(
@@ -175,7 +189,10 @@ class _TransactionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(typeLabel, style: AppTheme.titleStyle.copyWith(fontSize: 14)),
+                Text(
+                  typeLabel,
+                  style: AppTheme.titleStyle.copyWith(fontSize: 14),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   "Bởi: ${t.userFullName ?? 'N/A'} · ${t.warehouseName ?? ''}",
@@ -184,9 +201,17 @@ class _TransactionCard extends StatelessWidget {
                 if (t.items.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
-                    t.items.map((i) => i.productName ?? 'SP').take(2).join(', ') +
-                        (t.items.length > 2 ? ' +${t.items.length - 2} khác' : ''),
-                    style: AppTheme.captionStyle.copyWith(fontSize: 11, color: Colors.white38),
+                    t.items
+                            .map((i) => i.productName ?? 'SP')
+                            .take(2)
+                            .join(', ') +
+                        (t.items.length > 2
+                            ? ' +${t.items.length - 2} khác'
+                            : ''),
+                    style: AppTheme.captionStyle.copyWith(
+                      fontSize: 11,
+                      color: Colors.white38,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -198,7 +223,9 @@ class _TransactionCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               ZenithBadge(
-                label: t.type == 'IN' ? "+${t.totalQuantity}" : "-${t.totalQuantity}",
+                label: t.type == 'IN'
+                    ? "+${t.totalQuantity}"
+                    : "-${t.totalQuantity}",
                 color: typeColor,
               ),
               const SizedBox(height: 6),
@@ -219,8 +246,12 @@ class _ActionBtn extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
-  const _ActionBtn({required this.label, required this.icon, required this.color, required this.onTap});
-
+  const _ActionBtn({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -230,9 +261,18 @@ class _ActionBtn extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          decoration: AppTheme.cardDecoration(borderColor: color.withOpacity(0.25)).copyWith(
-            boxShadow: [BoxShadow(color: color.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 8))],
-          ),
+          decoration:
+              AppTheme.cardDecoration(
+                borderColor: color.withOpacity(0.25),
+              ).copyWith(
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
           child: Column(
             children: [
               Container(
@@ -244,7 +284,15 @@ class _ActionBtn extends StatelessWidget {
                 child: Icon(icon, color: color, size: 26),
               ),
               const SizedBox(height: 10),
-              Text(label, style: GoogleFonts.outfit(color: color, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+              Text(
+                label,
+                style: GoogleFonts.outfit(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  letterSpacing: 1,
+                ),
+              ),
             ],
           ),
         ),

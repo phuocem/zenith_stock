@@ -2,57 +2,55 @@ import '../providers/dashboard_provider.dart';
 
 class DashboardRepository {
   final DashboardProvider _provider;
-
   DashboardRepository(this._provider);
-
-  Future<Map<String, dynamic>> getSummaryData() async {
+  Future<Map<String, dynamic>> getSummaryData({int? warehouseId}) async {
     const days = 7;
     final now = DateTime.now();
-
-    final results = await Future.wait([
-      _provider.getInventorySummary(),
-      _provider.getTransactionsLastDays(days),
-      _provider.getTopProducts(5),
-    ]);
-
-    final inventory   = results[0] as List;
-    final transactions = results[1] as List;
-    final topProducts  = results[2] as List;
-
-    int totalStock   = 0;
+    final statsRes = await _provider.getDashboardStats(
+      warehouseId: warehouseId,
+    );
+    int totalStock = 0;
     int lowStockCount = 0;
-    for (final item in inventory) {
-      totalStock += (item['total_stock'] as num? ?? 0).toInt();
-      if (item['status'] == 'LOW') lowStockCount++;
+    int outOfStock = 0;
+    for (final r in statsRes) {
+      totalStock += (r['total_stock'] as num? ?? 0).toInt();
+      lowStockCount += (r['low_stock'] as num? ?? 0).toInt();
+      outOfStock += (r['out_of_stock'] as num? ?? 0).toInt();
     }
-
-    int inbound  = 0;
+    final transactions = await _provider.getTransactionsLastDays(
+      days,
+      warehouseId: warehouseId,
+    );
+    int inbound = 0;
     int outbound = 0;
     final chartData = List<double>.filled(days, 0.0);
-
     for (final t in transactions) {
       final items = t['transaction_items'] as List? ?? [];
-      final qty = items.fold<int>(0, (s, i) => s + ((i['quantity'] as num?)?.toInt() ?? 0));
-
-      if (t['type'] == 'IN')  inbound  += qty;
+      final qty = items.fold<int>(
+        0,
+        (s, i) => s + ((i['quantity'] as num?)?.toInt() ?? 0),
+      );
+      if (t['type'] == 'IN') inbound += qty;
       if (t['type'] == 'OUT') outbound += qty;
-
       try {
         final tDate = DateTime.parse(t['created_at']).toLocal();
-        final diff  = now.difference(tDate).inDays;
-        if (diff >= 0 && diff < days) {
+        final diff = now.difference(tDate).inDays;
+        if (diff >= 0 && diff < days)
           chartData[days - 1 - diff] += qty.toDouble();
-        }
       } catch (_) {}
     }
-
+    final topProducts = await _provider.getTopProducts(
+      5,
+      warehouseId: warehouseId,
+    );
     return {
-      'totalStock':       totalStock,
-      'lowStockCount':    lowStockCount,
-      'inboundThisWeek':  inbound,
+      'totalStock': totalStock,
+      'lowStockCount': lowStockCount,
+      'outOfStockCount': outOfStock,
+      'inboundThisWeek': inbound,
       'outboundThisWeek': outbound,
-      'chartData':        chartData,
-      'topProducts':      topProducts,
+      'chartData': chartData,
+      'topProducts': topProducts,
     };
   }
 

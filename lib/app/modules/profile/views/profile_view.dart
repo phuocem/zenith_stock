@@ -7,12 +7,10 @@ import '../../../core/global_styles.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
-
   @override
   Widget build(BuildContext context) {
-    final nameCtrl  = TextEditingController(text: controller.fullName.value);
+    final nameCtrl = TextEditingController(text: controller.fullName.value);
     final phoneCtrl = TextEditingController(text: controller.phone.value);
-
     return Scaffold(
       appBar: AppBar(title: const Text("HỒ SƠ CÁ NHÂN")),
       body: SingleChildScrollView(
@@ -37,21 +35,27 @@ class ProfileView extends GetView<ProfileController> {
 
   Widget _buildAvatar() {
     return Obx(() {
-      final profile  = controller.currentProfile;
+      final profile = controller.currentProfile;
       final initials = profile?.initials ?? 'U';
-      final name     = profile?.displayName ?? 'Người dùng';
-      final email    = profile?.email ?? '';
-
+      final name = profile?.displayName ?? 'Người dùng';
+      final email = profile?.email ?? '';
       return Column(
         children: [
           Container(
             width: 96,
             height: 96,
-            decoration: AppTheme.glowDecoration(color: AppTheme.primaryColor, radius: 48),
+            decoration: AppTheme.glowDecoration(
+              color: AppTheme.primaryColor,
+              radius: 48,
+            ),
             child: Center(
               child: Text(
                 initials,
-                style: GoogleFonts.outfit(fontSize: 36, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                style: GoogleFonts.outfit(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryColor,
+                ),
               ),
             ),
           ),
@@ -64,7 +68,11 @@ class ProfileView extends GetView<ProfileController> {
     });
   }
 
-  Widget _buildInfoCard(BuildContext ctx, TextEditingController nameCtrl, TextEditingController phoneCtrl) {
+  Widget _buildInfoCard(
+    BuildContext ctx,
+    TextEditingController nameCtrl,
+    TextEditingController phoneCtrl,
+  ) {
     return ZenithCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,33 +114,60 @@ class ProfileView extends GetView<ProfileController> {
             const SizedBox(height: 16),
             _infoRow(Icons.email_outlined, "Email", profile.email ?? '—'),
             const SizedBox(height: 12),
-            _infoRow(Icons.badge_outlined, "Vai trò", profile.roleName ?? '—', valueColor: AppTheme.primaryColor),
+            _infoRow(
+              Icons.badge_outlined,
+              "Vai trò",
+              profile.roleName ?? '—',
+              valueColor: AppTheme.primaryColor,
+            ),
             const SizedBox(height: 12),
-            _infoRow(Icons.security_outlined, "Trạng thái", "Đang hoạt động", valueColor: AppTheme.successColor),
+            _infoRow(
+              Icons.security_outlined,
+              "Trạng thái",
+              "Đang hoạt động",
+              valueColor: AppTheme.successColor,
+            ),
           ],
         ),
       );
     });
   }
 
-  Widget _infoRow(IconData icon, String label, String value, {Color? valueColor}) {
+  Widget _infoRow(
+    IconData icon,
+    String label,
+    String value, {
+    Color? valueColor,
+  }) {
     return Row(
       children: [
         Icon(icon, size: 18, color: Colors.white38),
         const SizedBox(width: 12),
         SizedBox(width: 80, child: Text(label, style: AppTheme.captionStyle)),
-        Expanded(child: Text(value, style: AppTheme.captionStyle.copyWith(color: valueColor ?? Colors.white70))),
+        Expanded(
+          child: Text(
+            value,
+            style: AppTheme.captionStyle.copyWith(
+              color: valueColor ?? Colors.white70,
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildSaveButton(TextEditingController nameCtrl, TextEditingController phoneCtrl) {
-    return Obx(() => ZenithButton(
-      label: "LƯU THAY ĐỔI",
-      icon: Icons.save_outlined,
-      isLoading: controller.isSaving.value,
-      onPressed: controller.saveProfile,
-    ));
+  Widget _buildSaveButton(
+    TextEditingController nameCtrl,
+    TextEditingController phoneCtrl,
+  ) {
+    return Obx(
+      () => ZenithButton(
+        label: "LƯU THAY ĐỔI",
+        icon: Icons.save_outlined,
+        isLoading: controller.isSaving.value,
+        onPressed: controller.saveProfile,
+      ),
+    );
   }
 
   Widget _buildLogoutButton() {

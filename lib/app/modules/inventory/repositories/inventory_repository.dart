@@ -4,7 +4,6 @@ import '../../../data/models/product_model.dart';
 class InventoryRepository {
   final InventoryProvider _provider;
   InventoryRepository(this._provider);
-
   Future<List<Category>> fetchCategories() async {
     final data = await _provider.getCategories();
     return data.map(Category.fromJson).toList();
@@ -20,8 +19,16 @@ class InventoryRepository {
     return data.map(Warehouse.fromJson).toList();
   }
 
-  Future<List<Product>> fetchProducts({String? search, int? categoryId}) async {
-    final data = await _provider.getProducts(search: search, categoryId: categoryId);
+  Future<List<Product>> fetchProducts({
+    String? search,
+    int? categoryId,
+    int? warehouseId,
+  }) async {
+    final data = await _provider.getProducts(
+      search: search,
+      categoryId: categoryId,
+      warehouseId: warehouseId,
+    );
     return data.map(Product.fromJson).toList();
   }
 
@@ -55,7 +62,6 @@ class InventoryRepository {
       'unit_id': unitId,
       'description': description,
     });
-
     if (initialQuantity > 0) {
       await _provider.insertBatch({
         'product_id': product['id'],
@@ -67,7 +73,11 @@ class InventoryRepository {
     }
   }
 
-  Future<void> deleteProduct(String id) async {
-    await _provider.deleteProduct(id);
+  Future<void> updateProduct(String id, Map<String, dynamic> data) async {
+    await _provider.updateProduct(id, data);
+  }
+
+  Future<void> archiveProduct(String id) async {
+    await _provider.archiveProduct(id);
   }
 }

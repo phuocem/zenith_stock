@@ -6,19 +6,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthController extends GetxController {
   final AuthRepository _repository;
-
-  final isLoading    = false.obs;
+  final isLoading = false.obs;
   final showPassword = false.obs;
-  final email        = ''.obs;
-  final password     = ''.obs;
-
+  final email = ''.obs;
+  final password = ''.obs;
   AuthController(this._repository);
-
   @override
   void onInit() {
     super.onInit();
     if (_repository.currentSession != null) {
-
       if (Get.isRegistered<UserController>()) {
         UserController.to.fetchProfile();
       }
@@ -31,20 +27,24 @@ class AuthController extends GetxController {
       Get.snackbar("Thiếu thông tin", "Vui lòng nhập email và mật khẩu");
       return;
     }
-
     try {
       isLoading.value = true;
-      final user = await _repository.login(email.value.trim(), password.value.trim());
-
+      final user = await _repository.login(
+        email.value.trim(),
+        password.value.trim(),
+      );
       if (user != null) {
-
         if (Get.isRegistered<UserController>()) {
           await UserController.to.fetchProfile();
         }
         Get.offAllNamed(Routes.DASHBOARD);
       }
     } on AuthException catch (e) {
-      Get.snackbar("Đăng nhập thất bại", e.message, snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Đăng nhập thất bại",
+        e.message,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
       Get.snackbar("Lỗi", "Đã có lỗi xảy ra, vui lòng thử lại");
     } finally {
@@ -57,7 +57,6 @@ class AuthController extends GetxController {
       Get.snackbar("Thiếu thông tin", "Vui lòng nhập email và mật khẩu");
       return;
     }
-
     try {
       isLoading.value = true;
       await _repository.register(email.value.trim(), password.value.trim());

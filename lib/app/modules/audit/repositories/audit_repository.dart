@@ -5,7 +5,6 @@ import '../../../data/models/product_model.dart';
 class AuditRepository {
   final AuditProvider _provider;
   AuditRepository(this._provider);
-
   Future<List<InventoryAudit>> fetchAudits({String? productId}) async {
     final data = await _provider.getAudits(productId: productId);
     return data.map(InventoryAudit.fromJson).toList();

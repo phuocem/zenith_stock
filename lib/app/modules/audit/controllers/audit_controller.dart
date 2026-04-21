@@ -5,22 +5,17 @@ import '../../../data/models/product_model.dart';
 
 class AuditController extends GetxController {
   final AuditRepository _repository;
-
   final isLoading = false.obs;
-  final audits    = <InventoryAudit>[].obs;
-
-  final isSubmitting    = false.obs;
-  final warehouses      = <Warehouse>[].obs;
-  final allProducts     = <Product>[].obs;
+  final audits = <InventoryAudit>[].obs;
+  final isSubmitting = false.obs;
+  final warehouses = <Warehouse>[].obs;
+  final allProducts = <Product>[].obs;
   final batchesForProduct = <Batch>[].obs;
-
   final selectedWarehouse = Rx<Warehouse?>(null);
-  final selectedProduct   = Rx<Product?>(null);
-  final selectedBatch     = Rx<Batch?>(null);
-  final actualQty         = 0.obs;
-
+  final selectedProduct = Rx<Product?>(null);
+  final selectedBatch = Rx<Batch?>(null);
+  final actualQty = 0.obs;
   AuditController(this._repository);
-
   @override
   void onInit() {
     super.onInit();
@@ -56,7 +51,7 @@ class AuditController extends GetxController {
 
   Future<void> onProductSelected(Product product) async {
     selectedProduct.value = product;
-    selectedBatch.value   = null;
+    selectedBatch.value = null;
     batchesForProduct.clear();
     actualQty.value = 0;
     try {
@@ -64,26 +59,27 @@ class AuditController extends GetxController {
       batchesForProduct.assignAll(batches);
       if (batches.isNotEmpty) {
         selectedBatch.value = batches.first;
-        actualQty.value     = batches.first.currentQuantity;
+        actualQty.value = batches.first.currentQuantity;
       }
     } catch (_) {}
   }
 
   void onBatchSelected(Batch batch) {
     selectedBatch.value = batch;
-    actualQty.value     = batch.currentQuantity;
+    actualQty.value = batch.currentQuantity;
   }
 
   Future<void> submitAudit({String? reason}) async {
-    final wh      = selectedWarehouse.value;
+    final wh = selectedWarehouse.value;
     final product = selectedProduct.value;
-    final batch   = selectedBatch.value;
-
+    final batch = selectedBatch.value;
     if (wh == null || product == null || batch == null) {
-      Get.snackbar("Thiếu thông tin", "Vui lòng chọn đầy đủ kho, sản phẩm và lô hàng");
+      Get.snackbar(
+        "Thiếu thông tin",
+        "Vui lòng chọn đầy đủ kho, sản phẩm và lô hàng",
+      );
       return;
     }
-
     try {
       isSubmitting.value = true;
       await _repository.submitAudit(
@@ -94,16 +90,17 @@ class AuditController extends GetxController {
         actualQty: actualQty.value,
         reason: reason,
       );
-
       selectedProduct.value = null;
-      selectedBatch.value   = null;
+      selectedBatch.value = null;
       batchesForProduct.clear();
       actualQty.value = 0;
-
       Get.back();
       await fetchAudits();
-      Get.snackbar("✅ Thành công", "Đã ghi nhận kết quả kiểm kê",
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "✅ Thành công",
+        "Đã ghi nhận kết quả kiểm kê",
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
       Get.snackbar("Lỗi", "Chốt sổ thất bại: $e");
     } finally {
