@@ -18,29 +18,28 @@ class InventoryController extends GetxController {
   final selectedWarehouseId = 0.obs;
   final warehouseSelected = false.obs;
   final searchQuery = ''.obs;
+  final showOnlyLowStock = false.obs;
   final selectedProduct = Rx<Product?>(null);
   final productBatches = <Batch>[].obs;
   Timer? _searchTimer;
   InventoryController(this._repository);
   List<Product> get filteredProducts {
     var list = products.toList();
+    if (showOnlyLowStock.value) {
+      list = list.where((p) => p.stockStatus != StockStatus.normal).toList();
+    }
     if (selectedCategoryId.value != 0) {
-      list = list
-          .where((p) => p.categoryId == selectedCategoryId.value)
-          .toList();
+      list = list.where((p) => p.categoryId == selectedCategoryId.value).toList();
     }
     final q = searchQuery.value.trim().toLowerCase();
     if (q.isNotEmpty) {
-      list = list
-          .where(
-            (p) =>
-                p.name.toLowerCase().contains(q) ||
-                p.sku.toLowerCase().contains(q),
-          )
-          .toList();
+      list = list.where((p) => p.name.toLowerCase().contains(q) || p.sku.toLowerCase().contains(q)).toList();
     }
     return list;
   }
+
+  int get totalItems => filteredProducts.length;
+  int get totalStock => filteredProducts.fold(0, (sum, p) => sum + p.currentStock);
 
   void setCategory(int id) => selectedCategoryId.value = id;
   void setWarehouse(int id) {
@@ -48,6 +47,7 @@ class InventoryController extends GetxController {
     selectedCategoryId.value = 0;
     searchQuery.value = '';
     warehouseSelected.value = true;
+    products.clear(); // Clear old products immediately for better UX
     fetchProducts();
   }
 
@@ -61,6 +61,10 @@ class InventoryController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    if (args is Map && args['filter'] == 'low_stock') {
+      showOnlyLowStock.value = true;
+    }
     _loadWarehouses();
   }
 

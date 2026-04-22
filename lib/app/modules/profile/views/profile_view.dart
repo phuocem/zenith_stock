@@ -1,90 +1,116 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../controllers/profile_controller.dart';
 import '../../../core/theme.dart';
 import '../../../core/global_styles.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final nameCtrl = TextEditingController(text: controller.fullName.value);
     final phoneCtrl = TextEditingController(text: controller.phone.value);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("HỒ SƠ CÁ NHÂN")),
+      backgroundColor: AppTheme.bgColor,
+      appBar: AppBar(
+        backgroundColor: AppTheme.surfaceColor,
+        title: const Text('HỒ SƠ CÁ NHÂN'),
+        bottom: PreferredSize(preferredSize: const Size.fromHeight(1), child: Container(height: 1, color: AppTheme.borderColor)),
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildAvatar(),
-            const SizedBox(height: 28),
-            _buildInfoCard(context, nameCtrl, phoneCtrl),
-            const SizedBox(height: 24),
-            _buildRoleCard(),
-            const SizedBox(height: 32),
-            _buildSaveButton(nameCtrl, phoneCtrl),
-            const SizedBox(height: 16),
-            _buildLogoutButton(),
-            const SizedBox(height: 24),
+            _ProfileHero(),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _InfoCard(nameCtrl: nameCtrl, phoneCtrl: phoneCtrl),
+                  const SizedBox(height: 16),
+                  _AccountCard(),
+                  const SizedBox(height: 24),
+                  _SaveButton(nameCtrl: nameCtrl, phoneCtrl: phoneCtrl),
+                  const SizedBox(height: 12),
+                  _LogoutButton(),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildAvatar() {
+class _ProfileHero extends GetView<ProfileController> {
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       final profile = controller.currentProfile;
       final initials = profile?.initials ?? 'U';
       final name = profile?.displayName ?? 'Người dùng';
       final email = profile?.email ?? '';
-      return Column(
-        children: [
-          Container(
-            width: 96,
-            height: 96,
-            decoration: AppTheme.glowDecoration(
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
+        decoration: BoxDecoration(
+          color: AppTheme.cardColor,
+          border: const Border(bottom: BorderSide(color: AppTheme.borderColor)),
+        ),
+        child: Column(
+          children: [
+            GlowPulse(
               color: AppTheme.primaryColor,
-              radius: 48,
-            ),
-            child: Center(
-              child: Text(
-                initials,
-                style: GoogleFonts.outfit(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryColor,
+              child: Container(
+                width: 88, height: 88,
+                decoration: AppTheme.glowDecoration(color: AppTheme.primaryColor, radius: 44),
+                child: Center(
+                  child: Text(
+                    initials,
+                    style: AppTheme.headlineStyle.copyWith(
+                      color: AppTheme.primaryColor, fontSize: 34, fontFamily: 'Sora',
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(name, style: AppTheme.headlineStyle),
-          const SizedBox(height: 6),
-          Text(email, style: AppTheme.captionStyle),
-        ],
+            const SizedBox(height: 16),
+            Text(name, style: AppTheme.headlineStyle.copyWith(fontSize: 20)),
+            const SizedBox(height: 4),
+            Text(email, style: AppTheme.captionStyle),
+            const SizedBox(height: 12),
+            ZenithBadge(label: 'ĐANG HOẠT ĐỘNG', color: AppTheme.successColor, dot: true),
+          ],
+        ),
       );
     });
   }
+}
 
-  Widget _buildInfoCard(
-    BuildContext ctx,
-    TextEditingController nameCtrl,
-    TextEditingController phoneCtrl,
-  ) {
+class _InfoCard extends GetView<ProfileController> {
+  final TextEditingController nameCtrl;
+  final TextEditingController phoneCtrl;
+  const _InfoCard({required this.nameCtrl, required this.phoneCtrl});
+
+  @override
+  Widget build(BuildContext context) {
     return ZenithCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: "Thông tin cá nhân"),
+          const SectionHeader(title: 'Thông tin cá nhân'),
           const SizedBox(height: 20),
           TextField(
             controller: nameCtrl,
             onChanged: (v) => controller.fullName.value = v,
+            style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
             decoration: const InputDecoration(
-              labelText: "Họ và tên",
-              prefixIcon: Icon(Icons.person_outline),
+              labelText: 'Họ và tên',
+              prefixIcon: Icon(Icons.person_outline, size: 18),
             ),
           ),
           const SizedBox(height: 14),
@@ -92,17 +118,21 @@ class ProfileView extends GetView<ProfileController> {
             controller: phoneCtrl,
             onChanged: (v) => controller.phone.value = v,
             keyboardType: TextInputType.phone,
+            style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
             decoration: const InputDecoration(
-              labelText: "Số điện thoại",
-              prefixIcon: Icon(Icons.phone_outlined),
+              labelText: 'Số điện thoại',
+              prefixIcon: Icon(Icons.phone_outlined, size: 18),
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildRoleCard() {
+class _AccountCard extends GetView<ProfileController> {
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       final profile = controller.currentProfile;
       if (profile == null) return const SizedBox.shrink();
@@ -110,69 +140,69 @@ class ProfileView extends GetView<ProfileController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionHeader(title: "Thông tin tài khoản"),
+            const SectionHeader(title: 'Thông tin tài khoản'),
             const SizedBox(height: 16),
-            _infoRow(Icons.email_outlined, "Email", profile.email ?? '—'),
-            const SizedBox(height: 12),
-            _infoRow(
-              Icons.badge_outlined,
-              "Vai trò",
-              profile.roleName ?? '—',
-              valueColor: AppTheme.primaryColor,
-            ),
-            const SizedBox(height: 12),
-            _infoRow(
-              Icons.security_outlined,
-              "Trạng thái",
-              "Đang hoạt động",
-              valueColor: AppTheme.successColor,
-            ),
+            _InfoRow(Icons.email_outlined, 'Email', profile.email ?? '—'),
+            const ZenithDivider(),
+            _InfoRow(Icons.badge_outlined, 'Vai trò', profile.roleName ?? '—', valueColor: AppTheme.primaryColor),
+            const ZenithDivider(),
+            _InfoRow(Icons.security_outlined, 'Trạng thái', 'Đang hoạt động', valueColor: AppTheme.successColor),
           ],
         ),
       );
     });
   }
+}
 
-  Widget _infoRow(
-    IconData icon,
-    String label,
-    String value, {
-    Color? valueColor,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: Colors.white38),
-        const SizedBox(width: 12),
-        SizedBox(width: 80, child: Text(label, style: AppTheme.captionStyle)),
-        Expanded(
-          child: Text(
-            value,
-            style: AppTheme.captionStyle.copyWith(
-              color: valueColor ?? Colors.white70,
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color? valueColor;
+  const _InfoRow(this.icon, this.label, this.value, {this.valueColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFF546E7A)),
+          const SizedBox(width: 12),
+          SizedBox(width: 80, child: Text(label, style: AppTheme.captionStyle)),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTheme.captionStyle.copyWith(color: valueColor ?? Colors.white70),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSaveButton(
-    TextEditingController nameCtrl,
-    TextEditingController phoneCtrl,
-  ) {
-    return Obx(
-      () => ZenithButton(
-        label: "LƯU THAY ĐỔI",
-        icon: Icons.save_outlined,
-        isLoading: controller.isSaving.value,
-        onPressed: controller.saveProfile,
+        ],
       ),
     );
   }
+}
 
-  Widget _buildLogoutButton() {
+class _SaveButton extends GetView<ProfileController> {
+  final TextEditingController nameCtrl;
+  final TextEditingController phoneCtrl;
+  const _SaveButton({required this.nameCtrl, required this.phoneCtrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => ZenithButton(
+      label: 'LƯU THAY ĐỔI',
+      icon: Icons.save_outlined,
+      isLoading: controller.isSaving.value,
+      onPressed: controller.saveProfile,
+    ));
+  }
+}
+
+class _LogoutButton extends GetView<ProfileController> {
+  @override
+  Widget build(BuildContext context) {
     return ZenithButton(
-      label: "ĐĂNG XUẤT",
+      label: 'ĐĂNG XUẤT',
       gradient: AppTheme.dangerGradient,
       icon: Icons.logout_rounded,
       onPressed: controller.logout,

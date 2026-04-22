@@ -19,7 +19,7 @@ void main() async {
       title: "Zenith Stock",
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
-      theme: AppTheme.dark,
+      theme: AppTheme.theme,
       debugShowCheckedModeBanner: false,
       defaultTransition: Transition.cupertino,
       transitionDuration: const Duration(milliseconds: 280),

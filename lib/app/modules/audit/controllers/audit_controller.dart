@@ -21,6 +21,14 @@ class AuditController extends GetxController {
     super.onInit();
     fetchAudits();
     fetchFormData();
+
+    // Reset selection when warehouse changes
+    ever(selectedWarehouse, (_) {
+      selectedProduct.value = null;
+      selectedBatch.value = null;
+      batchesForProduct.clear();
+      actualQty.value = 0;
+    });
   }
 
   Future<void> fetchAudits() async {
@@ -54,12 +62,19 @@ class AuditController extends GetxController {
     selectedBatch.value = null;
     batchesForProduct.clear();
     actualQty.value = 0;
+
+    final wh = selectedWarehouse.value;
+    if (wh == null) return;
+
     try {
       final batches = await _repository.fetchBatchesForProduct(product.id);
-      batchesForProduct.assignAll(batches);
-      if (batches.isNotEmpty) {
-        selectedBatch.value = batches.first;
-        actualQty.value = batches.first.currentQuantity;
+      // Filter batches by selected warehouse
+      final filtered = batches.where((b) => b.warehouseId == wh.id).toList();
+      batchesForProduct.assignAll(filtered);
+
+      if (filtered.isNotEmpty) {
+        selectedBatch.value = filtered.first;
+        actualQty.value = filtered.first.currentQuantity;
       }
     } catch (_) {}
   }
