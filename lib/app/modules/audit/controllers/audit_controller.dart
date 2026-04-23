@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import '../repositories/audit_repository.dart';
 import '../../../data/models/audit_model.dart';
 import '../../../data/models/product_model.dart';
+import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../inventory/controllers/inventory_controller.dart';
 
 class AuditController extends GetxController {
   final AuditRepository _repository;
@@ -110,6 +112,15 @@ class AuditController extends GetxController {
       batchesForProduct.clear();
       actualQty.value = 0;
       Get.back();
+      
+      // Refresh other modules for reactivity
+      if (Get.isRegistered<InventoryController>()) {
+        Get.find<InventoryController>().fetchProducts();
+      }
+      if (Get.isRegistered<DashboardController>()) {
+        Get.find<DashboardController>().fetchDashboardData();
+      }
+
       await fetchAudits();
       Get.snackbar(
         "✅ Thành công",

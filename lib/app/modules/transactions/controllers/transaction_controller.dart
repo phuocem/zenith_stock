@@ -3,6 +3,8 @@ import '../repositories/transaction_repository.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/models/product_model.dart';
 import '../../../core/user_controller.dart';
+import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../inventory/controllers/inventory_controller.dart';
 
 class TransactionController extends GetxController {
   final TransactionRepository _repository;
@@ -154,6 +156,15 @@ class TransactionController extends GetxController {
       );
       clearDraft();
       Get.back();
+
+      // Refresh other modules for reactivity
+      if (Get.isRegistered<InventoryController>()) {
+        Get.find<InventoryController>().fetchProducts();
+      }
+      if (Get.isRegistered<DashboardController>()) {
+        Get.find<DashboardController>().fetchDashboardData();
+      }
+
       await fetchHistory();
       Get.snackbar(
         "✅ Thành công",

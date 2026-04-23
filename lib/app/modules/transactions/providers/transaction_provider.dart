@@ -1,7 +1,13 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TransactionProvider {
   final SupabaseClient _supabase = Supabase.instance.client;
+  final Dio _dio = Dio();
+  
+  String get _apiUrl => dotenv.env['API_URL'] ?? 'http://localhost:8000';
+
   Future<List<Map<String, dynamic>>> getHistory({
     String? type,
     int? warehouseId,
@@ -89,14 +95,27 @@ class TransactionProvider {
     return await q.order('created_at');
   }
 
-  Future<Map<String, dynamic>> insertTransaction(
-    Map<String, dynamic> data,
-  ) async {
-    return await _supabase.from('transactions').insert(data).select().single();
-  }
+  // Unified submission via Backend API
+  Future<Map<String, dynamic>> submitTransactionToBackend(Map<String, dynamic> data) async {
+    final token = _supabase.auth.currentSession?.accessToken;
+    if (token == null) throw Exception("Unauthorized: No session token");
 
-  Future<void> insertTransactionItems(List<Map<String, dynamic>> items) async {
-    await _supabase.from('transaction_items').insert(items);
+    try {
+      final response = await _dio.post(
+        '$_apiUrl/transactions/',
+        data: data,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return response.data;
+    } on DioException catch (e) {
+      final msg = e.response?.data?['detail'] ?? e.message;
+      throw Exception("Backend Error: $msg");
+    }
   }
 
   String get currentUserId => _supabase.auth.currentUser!.id;

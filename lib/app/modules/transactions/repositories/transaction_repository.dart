@@ -66,17 +66,14 @@ class TransactionRepository {
     String? referenceNumber,
     required List<TransactionItemDraft> items,
   }) async {
-    final transRes = await _provider.insertTransaction({
+    final payload = {
       'type': type,
-      'user_id': _provider.currentUserId,
       'warehouse_id': warehouseId,
       'notes': notes,
       'reference_number': referenceNumber,
-    });
-    final transId = transRes['id'];
-    final itemsJson = items
-        .map((item) => {'transaction_id': transId, ...item.toApiJson()})
-        .toList();
-    await _provider.insertTransactionItems(itemsJson);
+      'items': items.map((i) => i.toApiJson()).toList(),
+    };
+
+    await _provider.submitTransactionToBackend(payload);
   }
 }
