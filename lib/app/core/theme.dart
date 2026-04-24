@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// ─── ZENITH STOCK — PREMIUM DARK THEME (Material 3 + Custom) ───────────────
-
 class AppTheme {
   AppTheme._();
 
-  // ── Core Palette ────────────────────────────────────────────────────────
-  static const Color primaryColor   = Color(0xFF00E5C3); // Cyan-mint
-  static const Color accentColor    = Color(0xFF7C6FFF); // Soft indigo
+  static const Color primaryColor   = Color(0xFF00E5C3);
+  static const Color accentColor    = Color(0xFF7C6FFF);
   static const Color successColor   = Color(0xFF22D67A);
   static const Color dangerColor    = Color(0xFFFF4B6E);
   static const Color warningColor   = Color(0xFFFFB547);
   static const Color infoColor      = Color(0xFF38BEFF);
 
-  // ── Surface Layers ──────────────────────────────────────────────────────
   static const Color bgColor        = Color(0xFF090D12);
   static const Color surfaceColor   = Color(0xFF0E1420);
   static const Color cardColor      = Color(0xFF131A25);
   static const Color elevatedColor  = Color(0xFF1A2333);
   static const Color borderColor    = Color(0xFF1E2C3D);
 
-  // ── Gradients ───────────────────────────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [Color(0xFF00E5C3), Color(0xFF0099FF)],
     begin: Alignment.topLeft, end: Alignment.bottomRight,
@@ -43,7 +38,6 @@ class AppTheme {
     begin: Alignment.topLeft, end: Alignment.bottomRight,
   );
 
-  // ── Typography ──────────────────────────────────────────────────────────
   static TextStyle get displayStyle => const TextStyle(
     fontFamily: 'Sora', fontSize: 28, fontWeight: FontWeight.w700,
     color: Colors.white, letterSpacing: -0.5, height: 1.2,
@@ -77,7 +71,6 @@ class AppTheme {
     color: Color(0xFF78909C),
   );
 
-  // ── Decorations ─────────────────────────────────────────────────────────
   static BoxDecoration cardDecoration({Color? borderColor, double radius = 16}) =>
     BoxDecoration(
       color: cardColor,
@@ -102,7 +95,6 @@ class AppTheme {
       border: Border.all(color: borderColor, width: 1),
     );
 
-  // ── Material 3 Theme ────────────────────────────────────────────────────
   static ThemeData get theme {
     final base = ThemeData.dark(useMaterial3: true);
     return base.copyWith(

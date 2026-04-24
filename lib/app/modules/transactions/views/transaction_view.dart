@@ -7,9 +7,6 @@ import '../../../core/global_styles.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../routes/app_pages.dart';
 
-// ════════════════════════════════════════════════════════════════════════════
-//  Transaction View
-// ════════════════════════════════════════════════════════════════════════════
 class TransactionView extends GetView<TransactionController> {
   const TransactionView({super.key});
 
@@ -311,7 +308,4 @@ class _TransactionCard extends StatelessWidget {
     );
   }
 }
-
-
-
 

@@ -2,11 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'theme.dart';
 
-// ════════════════════════════════════════════════════════════════════════════
-//  ZENITH STOCK — GLOBAL SHARED WIDGETS (Material 3 + Animations)
-// ════════════════════════════════════════════════════════════════════════════
-
-// ── ZenithCard ──────────────────────────────────────────────────────────────
 class ZenithCard extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -90,7 +85,6 @@ class _ZenithCardState extends State<ZenithCard>
   }
 }
 
-// ── ZenithButton ─────────────────────────────────────────────────────────────
 class ZenithButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -206,7 +200,6 @@ class _ZenithButtonState extends State<ZenithButton>
   }
 }
 
-// ── ZenithBadge ──────────────────────────────────────────────────────────────
 class ZenithBadge extends StatelessWidget {
   final String label;
   final Color color;
@@ -254,7 +247,6 @@ class ZenithBadge extends StatelessWidget {
   }
 }
 
-// ── ZenithStatCard ────────────────────────────────────────────────────────────
 class ZenithStatCard extends StatefulWidget {
   final String title;
   final String value;
@@ -358,7 +350,6 @@ class _ZenithStatCardState extends State<ZenithStatCard>
   }
 }
 
-// ── FadeSlideItem ─────────────────────────────────────────────────────────────
 class FadeSlideItem extends StatefulWidget {
   final Widget child;
   final int index;
@@ -407,7 +398,6 @@ class _FadeSlideItemState extends State<FadeSlideItem>
   }
 }
 
-// ── EmptyState ────────────────────────────────────────────────────────────────
 class EmptyState extends StatefulWidget {
   final String message;
   final IconData icon;
@@ -488,7 +478,6 @@ class _EmptyStateState extends State<EmptyState> with SingleTickerProviderStateM
   }
 }
 
-// ── SectionHeader ──────────────────────────────────────────────────────────────
 class SectionHeader extends StatelessWidget {
   final String title;
   final Widget? trailing;
@@ -518,7 +507,6 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
-// ── GlowPulse ──────────────────────────────────────────────────────────────────
 class GlowPulse extends StatefulWidget {
   final Widget child;
   final Color color;
@@ -566,7 +554,6 @@ class _GlowPulseState extends State<GlowPulse> with SingleTickerProviderStateMix
   }
 }
 
-// ── ShimmerLoader ──────────────────────────────────────────────────────────────
 class ShimmerBox extends StatefulWidget {
   final double width;
   final double height;
@@ -623,7 +610,6 @@ class _ShimmerBoxState extends State<ShimmerBox> with SingleTickerProviderStateM
   }
 }
 
-// ── ZenithDivider ──────────────────────────────────────────────────────────────
 class ZenithDivider extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   const ZenithDivider({super.key, this.margin});
@@ -642,9 +628,8 @@ class ZenithDivider extends StatelessWidget {
   }
 }
 
-// ── ZenithProgressBar ──────────────────────────────────────────────────────────
 class ZenithProgressBar extends StatefulWidget {
-  final double value; // 0.0 to 1.0
+  final double value;
   final Color color;
   final double height;
 

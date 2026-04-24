@@ -47,7 +47,7 @@ class InventoryController extends GetxController {
     selectedCategoryId.value = 0;
     searchQuery.value = '';
     warehouseSelected.value = true;
-    products.clear(); // Clear old products immediately for better UX
+    products.clear();
     fetchProducts();
   }
 

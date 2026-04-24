@@ -5,10 +5,8 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../../../core/theme.dart';
 import '../../../core/global_styles.dart';
-
 class AuthView extends GetView<AuthController> {
   const AuthView({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,28 +36,22 @@ class AuthView extends GetView<AuthController> {
     );
   }
 }
-
-// ── Animated Background with floating particles ─────────────────────────────
 class _AnimatedBackground extends StatefulWidget {
   const _AnimatedBackground();
   @override
   State<_AnimatedBackground> createState() => _AnimatedBackgroundState();
 }
-
 class _AnimatedBackgroundState extends State<_AnimatedBackground>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
-
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 12))
       ..repeat();
   }
-
   @override
   void dispose() { _ctrl.dispose(); super.dispose(); }
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -79,22 +71,17 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
     );
   }
 }
-
 class _BgPainter extends CustomPainter {
   final double t;
   _BgPainter(this.t);
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
-
-    // Glow orbs
     final orbs = [
       (Offset(size.width * 0.8, size.height * 0.15), AppTheme.primaryColor, 120.0),
       (Offset(size.width * 0.1, size.height * 0.7), AppTheme.accentColor, 100.0),
       (Offset(size.width * 0.5, size.height * 0.9), AppTheme.primaryColor, 80.0),
     ];
-
     for (final orb in orbs) {
       final (offset, color, radius) = orb;
       final animated = offset + Offset(
@@ -106,8 +93,6 @@ class _BgPainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: animated, radius: radius));
       canvas.drawCircle(animated, radius, paint);
     }
-
-    // Grid lines
     final gridPaint = Paint()
       ..color = AppTheme.borderColor.withOpacity(0.3)
       ..strokeWidth = 0.5;
@@ -119,23 +104,18 @@ class _BgPainter extends CustomPainter {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
     }
   }
-
   @override
   bool shouldRepaint(_BgPainter old) => old.t != t;
 }
-
-// ── Logo Section ─────────────────────────────────────────────────────────────
 class _LogoSection extends StatefulWidget {
   const _LogoSection();
   @override
   State<_LogoSection> createState() => _LogoSectionState();
 }
-
 class _LogoSectionState extends State<_LogoSection>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _fade, _scale;
-
   @override
   void initState() {
     super.initState();
@@ -145,10 +125,8 @@ class _LogoSectionState extends State<_LogoSection>
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
     _ctrl.forward();
   }
-
   @override
   void dispose() { _ctrl.dispose(); super.dispose(); }
-
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -206,11 +184,8 @@ class _LogoSectionState extends State<_LogoSection>
     );
   }
 }
-
-// ── Login Card ────────────────────────────────────────────────────────────────
 class _LoginCard extends GetView<AuthController> {
   const _LoginCard();
-
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -279,7 +254,6 @@ class _LoginCard extends GetView<AuthController> {
     );
   }
 }
-
 class _SignUpLink extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {

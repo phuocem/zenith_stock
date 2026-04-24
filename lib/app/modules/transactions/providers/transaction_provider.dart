@@ -95,7 +95,6 @@ class TransactionProvider {
     return await q.order('created_at');
   }
 
-  // Unified submission via Backend API
   Future<Map<String, dynamic>> submitTransactionToBackend(Map<String, dynamic> data) async {
     final token = _supabase.auth.currentSession?.accessToken;
     if (token == null) throw Exception("Unauthorized: No session token");

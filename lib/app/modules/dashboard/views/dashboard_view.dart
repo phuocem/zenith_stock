@@ -109,7 +109,6 @@ class DashboardView extends GetView<DashboardController> {
   }
 }
 
-// ── Welcome Header ─────────────────────────────────────────────────────────────
 class _WelcomeHeader extends GetView<DashboardController> {
   const _WelcomeHeader();
 
@@ -175,7 +174,6 @@ class _WelcomeHeader extends GetView<DashboardController> {
   }
 }
 
-// ── Summary Grid ─────────────────────────────────────────────────────────────
 class _SummaryGrid extends GetView<DashboardController> {
   const _SummaryGrid();
 
@@ -220,7 +218,6 @@ class _SummaryGrid extends GetView<DashboardController> {
   }
 }
 
-// ── Quick Nav Section ─────────────────────────────────────────────────────────
 class _QuickNavSection extends GetView<DashboardController> {
   List<_NavItem> _items(bool isAdmin, bool canStock, bool canTx, bool canAudit) => [
     if (canTx) _NavItem(Icons.south_west_rounded, 'Nhập kho', AppTheme.successColor, Routes.CREATE_TRANSACTION, 'IN'),
@@ -279,8 +276,8 @@ class _NavCell extends GetView<DashboardController> {
       borderColor: item.color.withOpacity(0.15),
       onTap: () {
         if (item.type != null) {
-          final txCtrl = Get.find<dynamic>(); // transaction controller
-          // controller.formType.value = item.type!;
+          final txCtrl = Get.find<dynamic>();
+
         }
         Get.toNamed(item.route);
       },
@@ -318,7 +315,6 @@ class _NavItem {
   const _NavItem(this.icon, this.label, this.color, this.route, [this.type]);
 }
 
-// ── Chart Section ─────────────────────────────────────────────────────────────
 class _ChartSection extends GetView<DashboardController> {
   const _ChartSection();
 
@@ -443,7 +439,6 @@ class _ChartLegend extends StatelessWidget {
   }
 }
 
-// ── Top Products ──────────────────────────────────────────────────────────────
 class _TopProductsSection extends GetView<DashboardController> {
   const _TopProductsSection();
 
@@ -520,7 +515,6 @@ class _TopProductsSection extends GetView<DashboardController> {
   }
 }
 
-// ── Drawer ────────────────────────────────────────────────────────────────────
 class _ZenithDrawer extends GetView<DashboardController> {
   const _ZenithDrawer();
 
@@ -666,7 +660,6 @@ class _DrawerItem extends StatelessWidget {
   }
 }
 
-// ── Skeleton Loader ─────────────────────────────────────────────────────────
 class _DashboardSkeleton extends StatelessWidget {
   const _DashboardSkeleton();
 

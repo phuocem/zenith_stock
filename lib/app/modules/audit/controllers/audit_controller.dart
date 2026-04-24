@@ -24,7 +24,6 @@ class AuditController extends GetxController {
     fetchAudits();
     fetchFormData();
 
-    // Reset selection when warehouse changes
     ever(selectedWarehouse, (_) {
       selectedProduct.value = null;
       selectedBatch.value = null;
@@ -70,7 +69,7 @@ class AuditController extends GetxController {
 
     try {
       final batches = await _repository.fetchBatchesForProduct(product.id);
-      // Filter batches by selected warehouse
+
       final filtered = batches.where((b) => b.warehouseId == wh.id).toList();
       batchesForProduct.assignAll(filtered);
 
@@ -112,8 +111,7 @@ class AuditController extends GetxController {
       batchesForProduct.clear();
       actualQty.value = 0;
       Get.back();
-      
-      // Refresh other modules for reactivity
+
       if (Get.isRegistered<InventoryController>()) {
         Get.find<InventoryController>().fetchProducts();
       }

@@ -157,7 +157,6 @@ class TransactionController extends GetxController {
       clearDraft();
       Get.back();
 
-      // Refresh other modules for reactivity
       if (Get.isRegistered<InventoryController>()) {
         Get.find<InventoryController>().fetchProducts();
       }
