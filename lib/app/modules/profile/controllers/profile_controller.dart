@@ -29,6 +29,8 @@ class ProfileController extends GetxController {
   UserProfile? get currentProfile => Get.isRegistered<UserController>()
       ? UserController.to.profile.value
       : null;
+
+  bool get isAdmin => Get.isRegistered<UserController>() ? UserController.to.isAdmin : false;
   Future<void> saveProfile() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;

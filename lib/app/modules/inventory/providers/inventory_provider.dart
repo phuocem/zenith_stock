@@ -7,7 +7,16 @@ class InventoryProvider {
   }
 
   Future<List<Map<String, dynamic>>> getUnits() async {
-    return await _supabase.from('units').select('*').order('id');
+    try {
+      print("===== [LOG] BẮT ĐẦU TẢI DANH SÁCH ĐƠN VỊ TỪ SUPABASE =====");
+      final response = await _supabase.from('units').select('*').order('id');
+      print("===== [LOG] TẢI ĐƠN VỊ THÀNH CÔNG! Số lượng: ${response.length} =====");
+      print("===== [LOG] DỮ LIỆU ĐƠN VỊ: $response =====");
+      return response;
+    } catch (e) {
+      print("===== [LOG] LỖI NGHIÊM TRỌNG KHI TẢI ĐƠN VỊ: $e =====");
+      rethrow;
+    }
   }
 
   Future<List<Map<String, dynamic>>> getWarehouses() async {

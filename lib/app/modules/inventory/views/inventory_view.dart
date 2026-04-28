@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/theme.dart';
@@ -5,6 +6,7 @@ import '../../../core/global_styles.dart';
 import '../controllers/inventory_controller.dart';
 import '../../../data/models/product_model.dart';
 import '../../../routes/app_pages.dart';
+import '../widgets/inventory_sheets.dart';
 
 class InventoryView extends GetView<InventoryController> {
   const InventoryView({super.key});
@@ -67,7 +69,7 @@ class InventoryView extends GetView<InventoryController> {
                     message: 'Không có sản phẩm trong kho này',
                     icon: Icons.inventory_2_outlined,
                     actionLabel: 'Thêm sản phẩm',
-                    onAction: () => _showAddProductSheet(context),
+                    onAction: () => showAddProductSheet(context),
                   );
                 }
                 return RefreshIndicator(
@@ -102,7 +104,7 @@ class _AddProductButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       child: FilledButton.icon(
-        onPressed: () => _showAddProductSheet(context),
+        onPressed: () => showAddProductSheet(context),
         icon: const Icon(Icons.add_rounded, size: 16),
         label: const Text('Thêm', style: TextStyle(fontFamily: 'Sora', fontSize: 12, fontWeight: FontWeight.w700)),
         style: FilledButton.styleFrom(
@@ -400,6 +402,7 @@ class _ProductCard extends StatelessWidget {
     return ZenithCard(
       borderColor: statusColor.withOpacity(status == StockStatus.normal ? 0.06 : 0.2),
       onTap: () => Get.toNamed(Routes.PRODUCT_DETAIL, arguments: product.id),
+      onLongPress: () => showEditProductSheet(context, product),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -412,7 +415,14 @@ class _ProductCard extends StatelessWidget {
                   color: statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(Icons.inventory_2_rounded, color: statusColor, size: 22),
+                clipBehavior: Clip.antiAlias,
+                child: (product.imageUrl != null && product.imageUrl!.isNotEmpty)
+                  ? Image.memory(
+                      base64Decode(product.imageUrl!.split(',').last),
+                      fit: BoxFit.cover,
+                      errorBuilder: (ctx, err, stack) => Icon(Icons.broken_image_rounded, color: statusColor, size: 22),
+                    )
+                  : Icon(Icons.inventory_2_rounded, color: statusColor, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -424,12 +434,16 @@ class _ProductCard extends StatelessWidget {
                     Row(
                       children: [
                         Text('SKU: ', style: AppTheme.monoStyle.copyWith(fontSize: 10)),
-                        Text(product.sku, style: AppTheme.monoStyle.copyWith(
-                          fontSize: 10, color: AppTheme.accentColor,
-                        )),
+                        Flexible(
+                          child: Text(product.sku, style: AppTheme.monoStyle.copyWith(
+                            fontSize: 10, color: AppTheme.accentColor,
+                          ), overflow: TextOverflow.ellipsis),
+                        ),
                         if (product.categoryName != null) ...[
                           const Text(' · ', style: TextStyle(color: Color(0xFF37474F))),
-                          Text(product.categoryName!, style: AppTheme.captionStyle.copyWith(fontSize: 10)),
+                          Flexible(
+                            child: Text(product.categoryName!, style: AppTheme.captionStyle.copyWith(fontSize: 10), overflow: TextOverflow.ellipsis),
+                          ),
                         ],
                       ],
                     ),
@@ -489,7 +503,7 @@ class _ContextMenu extends StatelessWidget {
       icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF546E7A), size: 20),
       onSelected: (v) {
         if (v == 'detail') Get.toNamed(Routes.PRODUCT_DETAIL, arguments: product.id);
-        if (v == 'edit') _showEditProductSheet(context, product);
+        if (v == 'edit') showEditProductSheet(context, product);
       },
       itemBuilder: (_) => [
         const PopupMenuItem(
@@ -549,204 +563,4 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-void _showAddProductSheet(BuildContext context) {
-  final ctrl = Get.find<InventoryController>();
-  final nameCtrl = TextEditingController();
-  final skuCtrl = TextEditingController();
-  final stockCtrl = TextEditingController(text: '0');
-  final descCtrl = TextEditingController();
-  int? selCatId;
-  int? selUnitId;
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: AppTheme.cardColor,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-    ),
-    builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setState) => Padding(
-        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 36, height: 36,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.add_box_outlined, color: AppTheme.primaryColor, size: 18),
-                  ),
-                  const SizedBox(width: 12),
-                  Text('Thêm sản phẩm mới', style: AppTheme.headlineStyle.copyWith(fontSize: 17)),
-                ],
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: nameCtrl,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-                decoration: const InputDecoration(labelText: 'Tên sản phẩm *'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: skuCtrl,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-                decoration: const InputDecoration(labelText: 'Mã SKU *'),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'Danh mục'),
-                      dropdownColor: AppTheme.elevatedColor,
-                      items: ctrl.categories.map((c) => DropdownMenuItem(
-                        value: c.id,
-                        child: Text(c.name, style: const TextStyle(fontSize: 13, fontFamily: 'Inter', color: Colors.white70)),
-                      )).toList(),
-                      onChanged: (v) => selCatId = v,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'Đơn vị'),
-                      dropdownColor: AppTheme.elevatedColor,
-                      items: ctrl.units.map((u) => DropdownMenuItem(
-                        value: u.id,
-                        child: Text(u.name, style: const TextStyle(fontSize: 13, fontFamily: 'Inter', color: Colors.white70)),
-                      )).toList(),
-                      onChanged: (v) => selUnitId = v,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: stockCtrl,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-                decoration: const InputDecoration(labelText: 'Tồn kho ban đầu'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: descCtrl,
-                maxLines: 2,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-                decoration: const InputDecoration(labelText: 'Mô tả'),
-              ),
-              const SizedBox(height: 28),
-              Obx(() => ZenithButton(
-                label: 'LƯU SẢN PHẨM',
-                isLoading: ctrl.isLoading.value,
-                icon: Icons.save_outlined,
-                onPressed: () {
-                  if (nameCtrl.text.isEmpty || skuCtrl.text.isEmpty || selCatId == null || selUnitId == null) {
-                    Get.snackbar('Thiếu thông tin', 'Vui lòng nhập đầy đủ các trường bắt buộc *');
-                    return;
-                  }
-                  ctrl.addProduct(
-                    name: nameCtrl.text.trim(),
-                    sku: skuCtrl.text.trim(),
-                    categoryId: selCatId!,
-                    unitId: selUnitId!,
-                    initialQuantity: int.tryParse(stockCtrl.text) ?? 0,
-                    description: descCtrl.text.trim(),
-                  );
-                },
-              )),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-void _showEditProductSheet(BuildContext context, Product product) {
-  final ctrl = Get.find<InventoryController>();
-  final nameCtrl = TextEditingController(text: product.name);
-  final descCtrl = TextEditingController(text: product.description ?? '');
-  final minStockCtrl = TextEditingController(text: product.minStockLevel.toString());
-
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: AppTheme.cardColor,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-    ),
-    builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setState) => Padding(
-        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 36, height: 36,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.edit_outlined, color: AppTheme.primaryColor, size: 18),
-                  ),
-                  const SizedBox(width: 12),
-                  Text('Chỉnh sửa sản phẩm', style: AppTheme.headlineStyle.copyWith(fontSize: 17)),
-                ],
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: nameCtrl,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-                decoration: const InputDecoration(labelText: 'Tên sản phẩm *'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: minStockCtrl,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-                decoration: const InputDecoration(labelText: 'Tồn kho tối thiểu'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: descCtrl,
-                maxLines: 3,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-                decoration: const InputDecoration(labelText: 'Mô tả'),
-              ),
-              const SizedBox(height: 28),
-              Obx(() => ZenithButton(
-                label: 'CẬP NHẬT',
-                isLoading: ctrl.isLoading.value,
-                icon: Icons.check_rounded,
-                onPressed: () {
-                  if (nameCtrl.text.isEmpty) {
-                    Get.snackbar('Thiếu thông tin', 'Vui lòng nhập tên sản phẩm');
-                    return;
-                  }
-                  ctrl.editProduct(
-                    product,
-                    name: nameCtrl.text.trim(),
-                    description: descCtrl.text.trim(),
-                    minStock: int.tryParse(minStockCtrl.text) ?? product.minStockLevel,
-                  );
-                },
-              )),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}

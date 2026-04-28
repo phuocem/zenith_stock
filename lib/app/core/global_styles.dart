@@ -8,6 +8,7 @@ class ZenithCard extends StatefulWidget {
   final Color? borderColor;
   final double borderRadius;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final bool animated;
 
   const ZenithCard({
@@ -17,6 +18,7 @@ class ZenithCard extends StatefulWidget {
     this.borderColor,
     this.borderRadius = 16,
     this.onTap,
+    this.onLongPress,
     this.animated = false,
   });
 
@@ -71,9 +73,10 @@ class _ZenithCardState extends State<ZenithCard>
       ),
     );
 
-    if (widget.onTap == null) return card;
+    if (widget.onTap == null && widget.onLongPress == null) return card;
 
     return GestureDetector(
+      onLongPress: widget.onLongPress,
       onTapDown: (_) => _ctrl.forward(),
       onTapUp: (_) {
         _ctrl.reverse();

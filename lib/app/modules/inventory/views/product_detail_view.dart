@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -93,7 +94,14 @@ class _ProductHeader extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: statusColor.withOpacity(0.2)),
                 ),
-                child: Icon(Icons.inventory_2_rounded, color: statusColor, size: 34),
+                clipBehavior: Clip.antiAlias,
+                child: (product.imageUrl != null && product.imageUrl!.isNotEmpty)
+                  ? Image.memory(
+                      base64Decode(product.imageUrl!.split(',').last),
+                      fit: BoxFit.cover,
+                      errorBuilder: (ctx, err, stack) => Icon(Icons.broken_image_rounded, color: statusColor, size: 34),
+                    )
+                  : Icon(Icons.inventory_2_rounded, color: statusColor, size: 34),
               ),
               const SizedBox(width: 16),
               Expanded(

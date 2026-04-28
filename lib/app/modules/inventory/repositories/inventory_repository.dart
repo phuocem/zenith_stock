@@ -51,9 +51,15 @@ class InventoryRepository {
     required String name,
     required String sku,
     required int categoryId,
-    required int unitId,
+    int? unitId,
     required int initialQuantity,
     String? description,
+    String? barcode,
+    int? minStock,
+    int? maxStock,
+    double? weight,
+    String? imageUrl,
+    int? warehouseId,
   }) async {
     final product = await _provider.insertProduct({
       'name': name,
@@ -61,10 +67,16 @@ class InventoryRepository {
       'category_id': categoryId,
       'unit_id': unitId,
       'description': description,
+      'barcode': barcode,
+      if (minStock != null) 'min_stock_level': minStock,
+      if (maxStock != null) 'max_stock_level': maxStock,
+      if (weight != null) 'weight': weight,
+      if (imageUrl != null) 'image_url': imageUrl,
     });
-    if (initialQuantity > 0) {
+    if (initialQuantity > 0 && warehouseId != null) {
       await _provider.insertBatch({
         'product_id': product['id'],
+        'warehouse_id': warehouseId,
         'batch_code': 'INITIAL-${DateTime.now().millisecondsSinceEpoch}',
         'initial_quantity': initialQuantity,
         'current_quantity': initialQuantity,

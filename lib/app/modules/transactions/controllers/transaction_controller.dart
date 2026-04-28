@@ -99,7 +99,6 @@ class TransactionController extends GetxController {
     }
     return await _repository.fetchAllBatches(
       productId,
-      warehouseId: warehouseId,
     );
   }
 
@@ -170,8 +169,12 @@ class TransactionController extends GetxController {
         "Đã ghi nhận ${formType.value == 'IN' ? 'phiếu nhập' : 'phiếu xuất'} kho",
         snackPosition: SnackPosition.BOTTOM,
       );
-    } catch (e) {
-      Get.snackbar("Lỗi", "Giao dịch thất bại: $e");
+    } catch (e, stackTrace) {
+      print("========== SUBMIT TRANSACTION ERROR ==========");
+      print(e);
+      print(stackTrace);
+      print("==============================================");
+      Get.snackbar("Lỗi", "Giao dịch thất bại: $e", duration: const Duration(seconds: 5));
     } finally {
       isSubmitting.value = false;
     }

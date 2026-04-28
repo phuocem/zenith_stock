@@ -38,7 +38,7 @@ class AuditProvider {
     return await _supabase
         .from('batches')
         .select(
-          'id, batch_code, current_quantity, warehouse_id, warehouses(name)',
+          '*, warehouses(name)',
         )
         .eq('product_id', productId)
         .order('created_at', ascending: false);

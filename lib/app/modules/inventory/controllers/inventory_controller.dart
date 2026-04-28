@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
 import '../repositories/inventory_repository.dart';
 import '../../../data/models/product_model.dart';
@@ -77,6 +78,25 @@ class InventoryController extends GetxController {
   Future<void> _loadWarehouses() async {
     try {
       isLoadingWarehouses.value = true;
+      
+      // AUTO INSERT UNITS IF EMPTY
+      try {
+        final client = Supabase.instance.client;
+        final count = await client.from('units').select().count(CountOption.exact);
+        if (count.count == 0) {
+          await client.from('units').insert([
+            {'name': 'Cái', 'abbreviation': 'cai'},
+            {'name': 'Hộp', 'abbreviation': 'hop'},
+            {'name': 'Thùng', 'abbreviation': 'thung'},
+            {'name': 'Chiếc', 'abbreviation': 'chiec'},
+            {'name': 'Kg', 'abbreviation': 'kg'},
+          ]);
+          print("DA THEM UNITS VAO DATABASE THANH CONG!");
+        }
+      } catch (e) {
+        print("Loi tu dong them unit: $e");
+      }
+
       final results = await Future.wait([
         _repository.fetchWarehouses(),
         _repository.fetchCategories(),
@@ -97,8 +117,22 @@ class InventoryController extends GetxController {
           setWarehouse(warehouses.first.id);
         }
       }
+
+      print("===== [LOG] SỐ LƯỢNG ĐƠN VỊ LẤY ĐƯỢC: ${units.length} =====");
+      if (units.isEmpty) {
+        print("===== [LOG CẢNH BÁO] DANH SÁCH ĐƠN VỊ ĐANG TRỐNG! =====");
+        Get.snackbar(
+          "Cảnh báo Database", 
+          "Bảng Đơn vị đang rỗng hoặc bị chặn bởi RLS! Vui lòng vào Supabase chạy SQL tắt RLS.",
+          duration: const Duration(seconds: 10),
+          backgroundColor: const Color(0xFFFF4B6E),
+          colorText: const Color(0xFFFFFFFF),
+        );
+      }
+
     } catch (e) {
-      Get.snackbar("Lỗi", "Không tải được danh sách kho: $e");
+      print("===== [LOG LỖI] KHÔNG TẢI ĐƯỢC DỮ LIỆU TỪ SUPABASE: $e =====");
+      Get.snackbar("Lỗi", "Không tải được danh sách kho hoặc đơn vị: $e", duration: const Duration(seconds: 8));
     } finally {
       isLoadingWarehouses.value = false;
     }
@@ -144,9 +178,15 @@ class InventoryController extends GetxController {
     required String name,
     required String sku,
     required int categoryId,
-    required int unitId,
+    int? unitId,
     required int initialQuantity,
     String? description,
+    String? barcode,
+    int? minStock,
+    int? maxStock,
+    double? weight,
+    String? imageUrl,
+    int? warehouseId,
   }) async {
     try {
       isLoading.value = true;
@@ -157,6 +197,12 @@ class InventoryController extends GetxController {
         unitId: unitId,
         initialQuantity: initialQuantity,
         description: description,
+        barcode: barcode,
+        minStock: minStock,
+        maxStock: maxStock,
+        weight: weight,
+        imageUrl: imageUrl,
+        warehouseId: warehouseId ?? selectedWarehouseId.value,
       );
       await fetchData();
       Get.back();

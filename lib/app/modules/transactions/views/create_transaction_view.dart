@@ -400,7 +400,11 @@ class _AddProductSheetState extends State<_AddProductSheet> {
     try {
       final list = await widget.controller.loadProductsForType();
       setState(() { _products = list; _loading = false; });
-    } catch (_) { setState(() => _loading = false); }
+    } catch (e) {
+      print('Error loading products: $e');
+      Get.snackbar('Lỗi tải sản phẩm', e.toString(), duration: const Duration(seconds: 5));
+      setState(() => _loading = false);
+    }
   }
 
   Future<void> _onProductSelected(Product p) async {
@@ -412,7 +416,11 @@ class _AddProductSheetState extends State<_AddProductSheet> {
         if (list.isNotEmpty) _selBatch = list.first;
         _loading = false;
       });
-    } catch (_) { setState(() => _loading = false); }
+    } catch (e) {
+      print('Error loading batches for product ${p.id}: $e');
+      Get.snackbar('Lỗi tải lô hàng', e.toString(), duration: const Duration(seconds: 5));
+      setState(() => _loading = false);
+    }
   }
 
   @override

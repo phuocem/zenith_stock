@@ -22,6 +22,9 @@ dependencies:
   dio: ^5.8.0+1
   logger: ^2.5.0
   flutter_dotenv: ^5.2.1
+  image_picker: ^1.2.1
+  image_picker_android: ^0.8.13+16
+  image_picker_ios: ^0.8.13+6
 
 dev_dependencies:
   flutter_test:

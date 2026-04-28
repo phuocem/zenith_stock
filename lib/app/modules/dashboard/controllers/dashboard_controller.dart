@@ -12,7 +12,8 @@ class DashboardController extends GetxController {
   final outOfStockCount = 0.obs;
   final inboundThisWeek = 0.obs;
   final outboundThisWeek = 0.obs;
-  final chartData = <double>[].obs;
+  final inboundChartData = <double>[].obs;
+  final outboundChartData = <double>[].obs;
   final topProducts = <dynamic>[].obs;
   final selectedWarehouse = Rx<WarehouseAccess?>(null);
   final availableWarehouses = <WarehouseAccess>[].obs;
@@ -54,7 +55,8 @@ class DashboardController extends GetxController {
       outOfStockCount.value = data['outOfStockCount'] as int;
       inboundThisWeek.value = data['inboundThisWeek'] as int;
       outboundThisWeek.value = data['outboundThisWeek'] as int;
-      chartData.assignAll(data['chartData'] as List<double>);
+      inboundChartData.assignAll(data['inboundChartData'] as List<double>);
+      outboundChartData.assignAll(data['outboundChartData'] as List<double>);
       topProducts.assignAll(data['topProducts'] as List);
     } catch (_) {
       Get.snackbar("Lỗi", "Không thể tải dữ liệu Dashboard");

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../controllers/audit_controller.dart';
 import '../../../core/theme.dart';
 import '../../../core/global_styles.dart';
-import '../../../data/models/audit_model.dart';
 import '../../../data/models/product_model.dart';
 
 class CreateAuditView extends GetView<AuditController> {

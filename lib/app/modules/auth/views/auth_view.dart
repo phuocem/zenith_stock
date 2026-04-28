@@ -24,8 +24,6 @@ class AuthView extends GetView<AuthController> {
                   const _LogoSection(),
                   const SizedBox(height: 52),
                   const _LoginCard(),
-                  const SizedBox(height: 24),
-                  _SignUpLink(),
                   const SizedBox(height: 32),
                 ],
               ),

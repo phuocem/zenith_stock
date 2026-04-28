@@ -107,21 +107,25 @@ class _InfoCard extends GetView<ProfileController> {
           TextField(
             controller: nameCtrl,
             onChanged: (v) => controller.fullName.value = v,
+            enabled: controller.isAdmin,
             style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Họ và tên',
-              prefixIcon: Icon(Icons.person_outline, size: 18),
+              prefixIcon: const Icon(Icons.person_outline, size: 18),
+              suffixIcon: !controller.isAdmin ? const Icon(Icons.lock_outline, size: 16, color: Colors.white24) : null,
             ),
           ),
           const SizedBox(height: 14),
           TextField(
             controller: phoneCtrl,
             onChanged: (v) => controller.phone.value = v,
+            enabled: controller.isAdmin,
             keyboardType: TextInputType.phone,
             style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Số điện thoại',
-              prefixIcon: Icon(Icons.phone_outlined, size: 18),
+              prefixIcon: const Icon(Icons.phone_outlined, size: 18),
+              suffixIcon: !controller.isAdmin ? const Icon(Icons.lock_outline, size: 16, color: Colors.white24) : null,
             ),
           ),
         ],
@@ -189,12 +193,15 @@ class _SaveButton extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => ZenithButton(
-      label: 'LƯU THAY ĐỔI',
-      icon: Icons.save_outlined,
-      isLoading: controller.isSaving.value,
-      onPressed: controller.saveProfile,
-    ));
+    return Obx(() {
+      if (!controller.isAdmin) return const SizedBox.shrink();
+      return ZenithButton(
+        label: 'LƯU THAY ĐỔI',
+        icon: Icons.save_outlined,
+        isLoading: controller.isSaving.value,
+        onPressed: controller.saveProfile,
+      );
+    });
   }
 }
 

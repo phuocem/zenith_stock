@@ -4,7 +4,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TransactionProvider {
   final SupabaseClient _supabase = Supabase.instance.client;
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(BaseOptions(
+    connectTimeout: const Duration(seconds: 3),
+    receiveTimeout: const Duration(seconds: 10),
+  ));
   
   String get _apiUrl => dotenv.env['API_URL'] ?? 'http://localhost:8000';
 
@@ -16,7 +19,7 @@ class TransactionProvider {
     var q = _supabase
         .from('transactions')
         .select(
-          '*, profiles(full_name), warehouses!transactions_warehouse_id_fkey(name, code), transaction_items(quantity, products(name, sku))',
+          '*, profiles(full_name), warehouses!transactions_warehouse_id_fkey(name, code), transaction_items(id, transaction_id, product_id, batch_id, quantity, unit_price, products(name, sku))',
         );
     if (type != null) q = q.eq('type', type);
     if (warehouseId != null) q = q.eq('warehouse_id', warehouseId);
@@ -66,7 +69,7 @@ class TransactionProvider {
     var q = _supabase
         .from('batches')
         .select(
-          'id, batch_code, current_quantity, warehouse_id, warehouses(name, code)',
+          'id, product_id, batch_code, current_quantity, initial_quantity, created_at, warehouse_id, warehouses(name, code)',
         )
         .eq('product_id', productId)
         .gt('current_quantity', 0);
@@ -88,7 +91,7 @@ class TransactionProvider {
     var q = _supabase
         .from('batches')
         .select(
-          'id, batch_code, current_quantity, warehouse_id, warehouses(name, code)',
+          'id, product_id, batch_code, current_quantity, initial_quantity, created_at, warehouse_id, warehouses(name, code)',
         )
         .eq('product_id', productId);
     if (warehouseId != null) q = q.eq('warehouse_id', warehouseId);

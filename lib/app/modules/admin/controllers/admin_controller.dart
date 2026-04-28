@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import '../providers/admin_provider.dart';
 import '../../../data/models/product_model.dart';
-import '../../../data/models/user_model.dart';
 
 class AdminController extends GetxController {
   final AdminProvider _provider;
@@ -24,10 +23,10 @@ class AdminController extends GetxController {
         _provider.getRoles(),
         _provider.getWarehouses(),
       ]);
-      users.assignAll(results[0] as List<Map<String, dynamic>>);
-      roles.assignAll(results[1] as List<Map<String, dynamic>>);
+      users.assignAll(results[0]);
+      roles.assignAll(results[1]);
       warehouses.assignAll(
-        (results[2] as List<Map<String, dynamic>>)
+        (results[2] as List)
             .map((w) => Warehouse.fromJson(w))
             .toList(),
       );

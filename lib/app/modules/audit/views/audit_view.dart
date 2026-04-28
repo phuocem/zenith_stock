@@ -6,7 +6,6 @@ import '../../../core/theme.dart';
 import '../../../core/global_styles.dart';
 import '../controllers/audit_controller.dart';
 import '../../../data/models/audit_model.dart';
-import '../../../data/models/product_model.dart';
 import '../../../routes/app_pages.dart';
 
 class AuditView extends GetView<AuditController> {

@@ -23,7 +23,8 @@ class DashboardRepository {
     );
     int inbound = 0;
     int outbound = 0;
-    final chartData = List<double>.filled(days, 0.0);
+    final inboundChartData = List<double>.filled(days, 0.0);
+    final outboundChartData = List<double>.filled(days, 0.0);
     for (final t in transactions) {
       final items = t['transaction_items'] as List? ?? [];
       final qty = items.fold<int>(
@@ -35,8 +36,11 @@ class DashboardRepository {
       try {
         final tDate = DateTime.parse(t['created_at']).toLocal();
         final diff = now.difference(tDate).inDays;
-        if (diff >= 0 && diff < days)
-          chartData[days - 1 - diff] += qty.toDouble();
+        if (diff >= 0 && diff < days) {
+          final idx = days - 1 - diff;
+          if (t['type'] == 'IN') inboundChartData[idx] += qty.toDouble();
+          if (t['type'] == 'OUT') outboundChartData[idx] += qty.toDouble();
+        }
       } catch (_) {}
     }
     final topProducts = await _provider.getTopProducts(
@@ -49,7 +53,8 @@ class DashboardRepository {
       'outOfStockCount': outOfStock,
       'inboundThisWeek': inbound,
       'outboundThisWeek': outbound,
-      'chartData': chartData,
+      'inboundChartData': inboundChartData,
+      'outboundChartData': outboundChartData,
       'topProducts': topProducts,
     };
   }
